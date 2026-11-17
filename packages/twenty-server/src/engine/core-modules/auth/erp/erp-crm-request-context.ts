@@ -1,3 +1,4 @@
+import { type CustomerVisibility } from 'src/modules/customer-marketing/customer-marketing.types';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import {
   type ErpCrmAccess,
@@ -12,6 +13,8 @@ export type ErpCrmRequestPolicy = {
   workspaceMemberId: string;
   databaseSchema?: string;
   selfProfileUpdate?: boolean;
+  customerDetailsUpdate?: boolean;
+  customerVisibility?: CustomerVisibility;
   grants: Partial<
     Record<
       ErpCrmCapability,

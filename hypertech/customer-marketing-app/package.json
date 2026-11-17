@@ -1,0 +1,11 @@
+{
+  "name": "hypertech-customer-marketing",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0",
+  "description": "Native Twenty customer records, consent and campaign preparation",
+  "devDependencies": {
+    "twenty-sdk": "2.59.0"
+  },
+  "packageManager": "yarn@4.18.1"
+}

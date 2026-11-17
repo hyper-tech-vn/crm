@@ -1,0 +1,123 @@
+import { defineView, ViewType } from 'twenty-sdk/define';
+export default defineView({
+  universalIdentifier: 'a943bc47-3978-5536-a7de-84d49da8e54e',
+  name: 'Hồ sơ khách hàng',
+  objectUniversalIdentifier: '2af7d632-0da2-5a9a-b607-b20918526c93',
+  type: ViewType.FIELDS_WIDGET,
+  fields: [
+    {
+      universalIdentifier: '44bab9fa-6334-5593-b3a7-94346e63674c',
+      fieldMetadataUniversalIdentifier: 'ade01a1e-e01c-5a04-9802-35ae0f688749',
+      position: 0,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: 'dfd88aa4-4644-533a-b888-69b51293df6f',
+      fieldMetadataUniversalIdentifier: 'a266c4ff-64ba-554a-874b-8cda9d006d0d',
+      position: 1,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: '20eb5487-638c-5a31-993c-842052ed18d4',
+      fieldMetadataUniversalIdentifier: '9ac3c2ad-ba6c-50ff-adc8-5fff51e15401',
+      position: 2,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: '28c53251-012b-51b2-8c58-0eea4f9f6d60',
+      fieldMetadataUniversalIdentifier: '2288a262-2444-5216-9591-952dbd5efe5e',
+      position: 3,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: 'e94d0108-2950-58c5-82c6-a4dce899ef80',
+      fieldMetadataUniversalIdentifier: '9852a72c-b719-5a49-85fc-1431bc2f62fa',
+      position: 4,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: '163c589c-22d7-5c06-9f4d-0d148cfd0644',
+      fieldMetadataUniversalIdentifier: 'a439592b-f4bb-5265-a322-5cc273e3ca0b',
+      position: 5,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: '0b13ff4f-0c5f-57ab-bc47-b7672b964c13',
+      fieldMetadataUniversalIdentifier: 'd8754a0b-4394-549f-b932-1ddf741e7bdf',
+      position: 6,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: '472fdd90-7ddf-5dcb-8389-b5c178ca082d',
+      fieldMetadataUniversalIdentifier: '6ab7465b-0e9e-58d2-9aec-55ae9e9e817e',
+      position: 7,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: '5ce84d70-6b45-5935-aee9-f96157b1b9d1',
+      fieldMetadataUniversalIdentifier: 'd06024a4-2ce5-5172-895a-bcff4aac0e79',
+      position: 8,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: 'da5d75d7-02ff-5eb5-9f66-5c816e594884',
+      fieldMetadataUniversalIdentifier: '25377fad-7d5d-5175-9d90-248e3f1fe49e',
+      position: 9,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: '2efe6424-43bf-5ebb-b80b-194f3f5420ff',
+      fieldMetadataUniversalIdentifier: 'e7d4caf9-a9b0-5bab-8ce6-15eb3c83dc7a',
+      position: 10,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: 'e17aa5d7-f87b-5b1a-a6d2-60bb5401d931',
+      fieldMetadataUniversalIdentifier: 'a4f7dae5-99b3-5867-91f5-d404acdc25c2',
+      position: 11,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: '360ae344-62b1-56f3-883e-5a62a6ad8b8b',
+      fieldMetadataUniversalIdentifier: '13647952-b4f1-5c03-9e10-2c40a5b430b1',
+      position: 12,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: '92151896-d46c-5ea9-8fe1-8e9660693b06',
+      fieldMetadataUniversalIdentifier: '5e17b417-db93-5538-b695-90edc57575d4',
+      position: 13,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: 'c7b532b3-834c-58cd-b16e-1b9f830700a2',
+      fieldMetadataUniversalIdentifier: 'bbbf6171-eca4-540a-ab06-08330db0900c',
+      position: 14,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: 'c4797070-96b6-5a61-83a0-0a98a3e66da9',
+      fieldMetadataUniversalIdentifier: 'ec00d4a7-d2c5-55fa-a65b-f452c74b8757',
+      position: 15,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: 'bfbefe77-b7f0-5de6-adbc-e7a24f234012',
+      fieldMetadataUniversalIdentifier: 'dd726f27-6c1d-5417-9aba-ba83d44cf18e',
+      position: 16,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: 'f7541018-4e32-5da9-835b-bfa9c7f28bb2',
+      fieldMetadataUniversalIdentifier: 'fded6f4f-0f9e-59e8-84af-0f4e1c1503fa',
+      position: 17,
+      isVisible: true,
+    },
+    {
+      universalIdentifier: 'e4bd84a8-12cf-58fd-8b37-64d7504ae94c',
+      fieldMetadataUniversalIdentifier: 'efbfcecd-d0df-53ce-a15b-7c7dfc4639f9',
+      position: 18,
+      isVisible: true,
+    },
+  ],
+});

@@ -114,3 +114,7 @@ fixture. Set ERP_CRM_MIGRATION_TEST_DATABASE_URL only to a separate empty databa
 for that test. Changed-source lint, contract type check and backend SWC build passed.
 The full-server comparison retains the unchanged baseline's 69 declaration/type
 errors and introduces no new errors; a clean full-server type check is not claimed.
+
+## Native customer marketing (local feature, not released)
+
+[Customer marketing](customer-marketing.md) keeps CRM state in native Twenty objects. ERP supplies only read-only source contacts/order facts and fresh independent visibility/capability checks. Native ORM scopes custom records before reads/counts/writes; dedicated actions own consent/audit and campaign mutations. Application installation grants no additional role permissions. Existing immutable identity, Clerk authentication and ERP authorization boundaries remain in force.

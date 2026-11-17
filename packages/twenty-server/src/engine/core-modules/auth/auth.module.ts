@@ -1,3 +1,9 @@
+import { ErpMarketingController } from './erp/erp-marketing.controller';
+import { CustomerMarketingHttpService } from 'src/modules/customer-marketing/customer-marketing-http.service';
+import { CustomerMarketingReadService } from 'src/modules/customer-marketing/customer-marketing-read.service';
+import { CustomerMarketingConsentService } from 'src/modules/customer-marketing/customer-marketing-consent.service';
+import { CustomerMarketingSyncService } from 'src/modules/customer-marketing/customer-marketing-sync.service';
+import { CustomerMarketingCampaignService } from 'src/modules/customer-marketing/customer-marketing-campaign.service';
 import { ErpCrmLoginWorkspaceService } from './erp/erp-crm-login.workspace-service';
 import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
 import { RoleAssignmentModule } from 'src/engine/permissions/role-assignment/role-assignment.module';
@@ -136,6 +142,7 @@ import { ClerkPasswordAuthDisabledGuard } from './clerk/clerk-password-auth-disa
     UserSessionModule,
   ],
   controllers: [
+    ErpMarketingController,
     ClerkAuthController,
     GoogleAuthController,
     MicrosoftAuthController,
@@ -147,6 +154,11 @@ import { ClerkPasswordAuthDisabledGuard } from './clerk/clerk-password-auth-disa
     ConnectionProviderCustomController,
   ],
   providers: [
+    CustomerMarketingHttpService,
+    CustomerMarketingReadService,
+    CustomerMarketingConsentService,
+    CustomerMarketingSyncService,
+    CustomerMarketingCampaignService,
     ErpCrmLoginWorkspaceService,
     ClerkOidcService,
     ClerkPasswordAuthDisabledGuard,

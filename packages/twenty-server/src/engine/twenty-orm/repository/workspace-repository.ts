@@ -1074,7 +1074,11 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
       onConflictDoNothing,
     });
 
-    const rawRows = await this.executeRaw<ObjectRecord>(sql, parameters);
+    // Generated inserts have already passed native/ERP write and reference checks.
+    // The public raw-SQL entry point keeps its separate full-administration guard.
+    const rawRows = (await this.options.executor.execute(
+      compileTwentyOrmStatement({ sql, parameters }),
+    )) as ObjectRecord[];
 
     await writtenRecordsValidator?.validate({
       writtenRecords: rawRows,

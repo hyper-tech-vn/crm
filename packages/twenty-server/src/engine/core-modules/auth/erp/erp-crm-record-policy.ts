@@ -1,3 +1,9 @@
+import {
+  isNativeMarketingObject,
+  nativeMarketingPredicate,
+  nativeMarketingReadCapability,
+  requireNativeMarketingWrite,
+} from 'src/modules/customer-marketing/native-marketing-record-policy';
 import { assertWorkspaceMemberUpdateUsesNonCustomFieldsOnly } from 'src/engine/core-modules/user/utils/assert-workspace-member-update-non-custom-fields.util';
 import { ForbiddenException } from '@nestjs/common';
 import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
@@ -35,6 +41,9 @@ export const erpRecordPredicate = (
       sql: `${quote(alias)}."id" = :erp_self_profile`,
       parameters: { erp_self_profile: policy.workspaceMemberId },
     };
+  }
+  if (isNativeMarketingObject(shape.nameSingular)) {
+    return nativeMarketingPredicate(policy, shape, alias, capability);
   }
   if (grant.scope === 'ORGANIZATION') {
     return { sql: 'TRUE', parameters: {} };
@@ -82,11 +91,13 @@ export const erpRecordPredicate = (
 const readCapability = (
   shape: WorkspaceTableShape,
 ): ErpCrmCapability | undefined =>
-  CUSTOMERS.has(shape.nameSingular)
-    ? 'crm-customer:read'
-    : CAMPAIGNS.has(shape.nameSingular)
-      ? 'crm-campaign:read'
-      : undefined;
+  isNativeMarketingObject(shape.nameSingular)
+    ? nativeMarketingReadCapability(shape.nameSingular)
+    : CUSTOMERS.has(shape.nameSingular)
+      ? 'crm-customer:read'
+      : CAMPAIGNS.has(shape.nameSingular)
+        ? 'crm-campaign:read'
+        : undefined;
 
 export const applyErpCrmReadPolicy = (builder: WorkspaceSelectQueryBuilder) => {
   if (!erpCrmEnabled()) {
@@ -159,6 +170,9 @@ export const requireErpCrmWrite = (
   const policy = carrier?.policy;
   if (!policy) {
     throw new ForbiddenException('ERP CRM authorization has not completed.');
+  }
+  if (isNativeMarketingObject(shape.nameSingular)) {
+    return requireNativeMarketingWrite(policy, shape, action, records);
   }
   if (
     shape.nameSingular === 'workspaceMember' &&

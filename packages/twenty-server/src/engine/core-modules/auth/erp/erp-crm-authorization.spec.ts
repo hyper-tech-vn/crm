@@ -309,3 +309,42 @@ describe('ERP CRM boundary', () => {
     expect(client.resolve).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('ERP customer marketing BFF capability enforcement', () => {
+  it('allows scoped customer reads and requires independent export and consent-management grants', () => {
+    const actor = policy();
+    const read = {
+      method: 'GET',
+      path: '/auth/erp-marketing/customers',
+    } as Request;
+    expect(() => authorizeErpCrmHttpRequest(read, actor)).not.toThrow();
+    const exporting = {
+      method: 'GET',
+      path: '/auth/erp-marketing/customers/export',
+    } as Request;
+    expect(() => authorizeErpCrmHttpRequest(exporting, actor)).toThrow(
+      ForbiddenException,
+    );
+    actor.grants['crm-customer:export'] = {
+      ...grant,
+      ownerWorkspaceMemberIds: [workspaceMemberId],
+    };
+    expect(() => authorizeErpCrmHttpRequest(exporting, actor)).not.toThrow();
+    const changing = {
+      method: 'POST',
+      path: '/auth/erp-marketing/customers/11111111111111111111111111111111/consent',
+    } as Request;
+    actor.grants['crm-customer:update'] = {
+      ...grant,
+      ownerWorkspaceMemberIds: [workspaceMemberId],
+    };
+    expect(() => authorizeErpCrmHttpRequest(changing, actor)).toThrow(
+      ForbiddenException,
+    );
+    actor.grants['crm-campaign:manage'] = {
+      ...grant,
+      ownerWorkspaceMemberIds: [workspaceMemberId],
+    };
+    expect(() => authorizeErpCrmHttpRequest(changing, actor)).not.toThrow();
+  });
+});

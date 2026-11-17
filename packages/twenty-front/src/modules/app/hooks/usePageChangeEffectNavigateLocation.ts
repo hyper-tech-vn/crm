@@ -1,3 +1,8 @@
+import {
+  CUSTOMER_MARKETING_HOME,
+  isLegacyCrmTemplatePath,
+} from '@/customer-marketing/marketing-navigation';
+import { authProvidersState } from '@/client-config/states/authProvidersState';
 import { verifyEmailRedirectPathState } from '@/auth/states/verifyEmailRedirectPathState';
 import { ONBOARDING_PATHS } from '@/auth/constants/OnboardingPaths';
 import { ONGOING_USER_CREATION_PATHS } from '@/auth/constants/OngoingUserCreationPaths';
@@ -36,6 +41,7 @@ const readReturnToPathFromUrlSearchParams = (): string | null => {
 
 export const usePageChangeEffectNavigateLocation = () => {
   const isLogged = useIsLogged();
+  const isHypertech = useAtomStateValue(authProvidersState).clerk;
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const { isOnAWorkspace } = useIsCurrentLocationOnAWorkspace();
   const onboardingStatus = useOnboardingStatus();
@@ -47,6 +53,7 @@ export const usePageChangeEffectNavigateLocation = () => {
   const { shouldOpenGettingStarted, isLoading: isGettingStartedLoading } =
     useShouldOpenGettingStarted({
       isEnabled:
+        !isHypertech &&
         isLogged &&
         isOnAWorkspace &&
         onboardingStatus === OnboardingStatus.COMPLETED &&
@@ -84,14 +91,22 @@ export const usePageChangeEffectNavigateLocation = () => {
   );
 
   const returnToPath = useAtomStateValue(returnToPathState);
-  const resolvedReturnToPath = isNonEmptyString(returnToPath)
+  const requestedReturnToPath = isNonEmptyString(returnToPath)
     ? returnToPath
     : readReturnToPathFromUrlSearchParams();
-  const homePath = shouldOpenGettingStarted
-    ? AppPath.GettingStarted
-    : defaultHomePagePath;
+  const resolvedReturnToPath =
+    isHypertech &&
+    requestedReturnToPath &&
+    isLegacyCrmTemplatePath(requestedReturnToPath)
+      ? null
+      : requestedReturnToPath;
+  const homePath =
+    !isHypertech && shouldOpenGettingStarted
+      ? AppPath.GettingStarted
+      : defaultHomePagePath;
   const landingPath =
-    resolvedReturnToPath ?? (isGettingStartedLoading ? undefined : homePath);
+    resolvedReturnToPath ??
+    (!isHypertech && isGettingStartedLoading ? undefined : homePath);
 
   const isOnboardingCheckoutPending = useAtomStateValue(
     isOnboardingCheckoutPendingState,
@@ -182,6 +197,16 @@ export const usePageChangeEffectNavigateLocation = () => {
     if (isMatchingLocation(location, AppPath.PlanRequired)) {
       return;
     }
+  }
+
+  if (
+    isHypertech &&
+    isLogged &&
+    isOnAWorkspace &&
+    onboardingStatus === OnboardingStatus.COMPLETED &&
+    isLegacyCrmTemplatePath(location.pathname)
+  ) {
+    return CUSTOMER_MARKETING_HOME;
   }
 
   if (

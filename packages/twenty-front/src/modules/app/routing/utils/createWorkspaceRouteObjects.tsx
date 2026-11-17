@@ -12,6 +12,12 @@ import { type WorkspaceRouteObject } from '@/app/routing/types/WorkspaceRouteObj
 import { StandardObjectNamePlural } from '@/object-metadata/types/StandardObjectNamePlural';
 import { RecordIndexSkeletonLoader } from '@/object-record/record-index/components/RecordIndexSkeletonLoader';
 
+const MarketingPage = lazy(() =>
+  import('@/customer-marketing/components/MarketingPage').then((module) => ({
+    default: module.MarketingPage,
+  })),
+);
+
 const GettingStartedPage = lazy(() =>
   import('~/pages/getting-started/GettingStartedPage').then((module) => ({
     default: module.GettingStartedPage,
@@ -99,6 +105,14 @@ export const createWorkspaceRouteObjects = ({
   });
 
   return [
+    {
+      path: '/marketing/:section?/:recordId?',
+      element: (
+        <LazyRoute>
+          <MarketingPage />
+        </LazyRoute>
+      ),
+    },
     {
       path: AppPath.GettingStarted,
       element: (

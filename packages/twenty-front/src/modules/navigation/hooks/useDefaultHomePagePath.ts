@@ -1,3 +1,5 @@
+import { CUSTOMER_MARKETING_HOME } from '@/customer-marketing/marketing-navigation';
+import { authProvidersState } from '@/client-config/states/authProvidersState';
 import { currentUserState } from '@/auth/states/currentUserState';
 import { metadataStoreState } from '@/metadata-store/states/metadataStoreState';
 import { metadataStoreStatusFamilySelector } from '@/metadata-store/states/metadataStoreStatusFamilySelector';
@@ -21,6 +23,7 @@ import { getAppPath, getSettingsPath, isDefined } from 'twenty-shared/utils';
 
 export const useDefaultHomePagePath = () => {
   const currentUser = useAtomStateValue(currentUserState);
+  const isHypertech = useAtomStateValue(authProvidersState).clerk;
   const isMobile = useIsMobile();
   const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
   const metadataStore = useAtomFamilyStateValue(
@@ -98,6 +101,10 @@ export const useDefaultHomePagePath = () => {
       return AppPath.SignInUp;
     }
 
+    if (isHypertech) {
+      return CUSTOMER_MARKETING_HOME;
+    }
+
     if (isMobile) {
       return AppPath.Home;
     }
@@ -128,6 +135,7 @@ export const useDefaultHomePagePath = () => {
     );
   }, [
     currentUser,
+    isHypertech,
     isMobile,
     readableNonSystemObjectMetadataItems,
     areObjectMetadataItemsLoaded,

@@ -40,7 +40,8 @@ Clerk. The OAuth client must support `openid profile email`, S256 and
 application after changing OAuth configuration. ERP must enable `app.crm-access.enabled=true`
 and set `app.crm-access.client-id` to the exact confidential CRM OAuth client ID.
 The issuer and JWKS remain ERP's existing Clerk configuration; the extra audience
-is accepted only on `GET /api/v1/access/applications/crm`.
+is accepted only on the CRM access GET and the closed read-only
+`/api/v1/orders/crm-customers/**` source API in the matching ERP feature.
 
 See [ERP-AUTHORIZATION.md](ERP-AUTHORIZATION.md) for permissions, scope, migration,
 compatibility, verification and release order. Existing native sessions need a new
@@ -73,13 +74,14 @@ admin login and verify an unauthorized account is denied. Keep the previous
 image available for rollback. `compose.upstream.yml` is the deployment baseline,
 not evidence that this custom source is already deployed.
 
-## Planned marketing integration
+## Customer marketing
 
-Twenty holds customer profiles, companies, pipeline and activity. listmonk sends
-campaigns. A connector still needs to be implemented: export only opted-in
-contacts, map segments to lists, deduplicate email addresses and propagate
-unsubscribe/suppression back to the CRM. This fork does not currently synchronize
-contacts or send campaigns.
+[The native CRM feature](customer-marketing.md) stores customers, notes, consent
+evidence and campaign drafts in Twenty, with source-only ERP synchronization and
+fresh ERP authorization. Its SDK application must be installed before release;
+local verification is not a production installation. Listmonk delivery and
+unsubscribe synchronization remain future integration work; this feature sends
+no email.
 
 See [LICENSE-BOUNDARY.md](LICENSE-BOUNDARY.md) and the upstream [LICENSE](../LICENSE).
 Publish the matching source commit and source URL with each deployed custom image.

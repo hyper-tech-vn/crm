@@ -1,4 +1,8 @@
 import {
+  ErpCustomerSourceClient,
+  needsCustomerVisibility,
+} from 'src/modules/customer-marketing/erp-customer-source.client';
+import {
   ForbiddenException,
   Injectable,
   UnauthorizedException,
@@ -25,6 +29,7 @@ export class ErpCrmAuthorizationService {
   constructor(
     private readonly identities: ErpCrmIdentityStore,
     private readonly accessClient: ErpCrmAccessClient,
+    private readonly customerSource: ErpCustomerSourceClient = new ErpCustomerSourceClient(),
   ) {}
 
   async authorize(request: Request, auth: RawAuthContext): Promise<void> {
@@ -45,7 +50,7 @@ export class ErpCrmAuthorizationService {
       throw new ForbiddenException('ERP CRM authorization is required.');
     }
     if (!carrier.resolving) {
-      carrier.resolving = this.resolve(auth).then((policy) => {
+      carrier.resolving = this.resolve(auth, request).then((policy) => {
         carrier.policy = policy;
       });
     }
@@ -67,7 +72,10 @@ export class ErpCrmAuthorizationService {
     authorizeErpCrmHttpRequest(request, carrier.policy);
   }
 
-  private async resolve(auth: RawAuthContext): Promise<ErpCrmRequestPolicy> {
+  private async resolve(
+    auth: RawAuthContext,
+    request: Request,
+  ): Promise<ErpCrmRequestPolicy> {
     if (!auth.user) {
       throw new UnauthorizedException();
     }
@@ -113,6 +121,17 @@ export class ErpCrmAuthorizationService {
     return {
       access,
       grants,
+      ...(needsCustomerVisibility(
+        request.path,
+        request.method === 'GET' ? request.query?.query : request.body?.query,
+        request.method,
+      )
+        ? {
+            customerVisibility: await this.customerSource.visibility(
+              proof.idToken,
+            ),
+          }
+        : {}),
       userId: auth.user.id,
       workspaceId: config.workspaceId,
       workspaceMemberId: binding.workspaceMemberId,

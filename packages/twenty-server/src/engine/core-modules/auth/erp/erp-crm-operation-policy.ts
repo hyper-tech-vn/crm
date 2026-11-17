@@ -1,3 +1,7 @@
+import {
+  resolveErpMarketingRoute,
+  ERP_MARKETING_PREFIX,
+} from './erp-marketing-routes';
 import { ForbiddenException } from '@nestjs/common';
 import {
   getOperationAST,
@@ -14,6 +18,7 @@ import { type ErpCrmRequestPolicy } from './erp-crm-request-context';
 
 const SAFE_METADATA_READS = new Set([
   'getViews',
+  'getPageLayouts',
   'navigationMenuItems',
   'objects',
   'fields',
@@ -134,6 +139,41 @@ export const authorizeErpCrmRootField = (
     }
     requireErpCapability(policy, 'crm:admin');
     return;
+  }
+  if (
+    !mutation &&
+    [
+      'hypertechCustomer',
+      'hypertechCustomers',
+      'hypertechConsentEvent',
+      'hypertechConsentEvents',
+    ].includes(field)
+  ) {
+    requireErpCapability(policy, 'crm-customer:read');
+    return;
+  }
+  if (
+    !mutation &&
+    ['hypertechCampaign', 'hypertechCampaigns'].includes(field)
+  ) {
+    requireErpCapability(policy, 'crm-campaign:read');
+    return;
+  }
+  if (mutation && /^update(?:Many)?HypertechCustomers?$/.test(field)) {
+    requireErpCapability(policy, 'crm-customer:read');
+    requireErpCapability(policy, 'crm-customer:update');
+    policy.customerDetailsUpdate = true;
+    return;
+  }
+  if (
+    mutation &&
+    /^(create|update|delete|destroy|restore|upsert|merge)(?:Many)?Hypertech(Customer|Customers|Campaign|Campaigns|ConsentEvent|ConsentEvents)$/.test(
+      field,
+    )
+  ) {
+    throw new ForbiddenException(
+      'Use the Hypertech CRM customer and campaign actions.',
+    );
   }
   if (
     !mutation &&
@@ -312,6 +352,16 @@ export const authorizeErpCrmHttpRequest = (
       }
     };
     walk(operation.selectionSet);
+    return;
+  }
+  if (path.startsWith(ERP_MARKETING_PREFIX)) {
+    const route = resolveErpMarketingRoute(request.method, path);
+    if (!route) {
+      throw new ForbiddenException('Unsupported customer marketing operation.');
+    }
+    for (const capability of route.capabilities) {
+      requireErpCapability(policy, capability);
+    }
     return;
   }
   const resource = path.match(
