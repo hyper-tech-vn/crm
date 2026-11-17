@@ -103,11 +103,6 @@ services:
       POSTGRES_USER: twenty
       POSTGRES_DB: twenty
       POSTGRES_PASSWORD: ${SERVICE_PASSWORD_64_DB}
-      TWENTY_ENCRYPTION_KEY: ""
-      SERVICE_PASSWORD_64_APP: ""
-      AUTH_CLERK_CLIENT_ID: ""
-      AUTH_CLERK_CLIENT_SECRET: ""
-      AUTH_CLERK_ALLOWED_IDENTITIES: ""
     volumes:
       - twenty-db:/var/lib/postgresql/data
     healthcheck:
@@ -135,13 +130,6 @@ services:
       - noeviction
       - --appendonly
       - yes
-    environment:
-      TWENTY_ENCRYPTION_KEY: ""
-      SERVICE_PASSWORD_64_APP: ""
-      SERVICE_PASSWORD_64_DB: ""
-      AUTH_CLERK_CLIENT_ID: ""
-      AUTH_CLERK_CLIENT_SECRET: ""
-      AUTH_CLERK_ALLOWED_IDENTITIES: ""
     volumes:
       - twenty-redis:/data
     healthcheck:
