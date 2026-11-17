@@ -8,9 +8,14 @@ filter chain lives in existing `configuration`.
 ## Assignment and compatibility
 
 ERP V54 adds ten CRM capabilities and six ordinary permission groups. Only
-SYSTEM_ADMIN receives the CRM_ADMIN group automatically. Sales/marketing groups
-must be assigned through ERP's existing role/group UI with an explicit scope.
-There is no role-name shortcut and no default grant to every Seller/Marketer.
+SYSTEM_ADMIN receives the CRM_ADMIN group automatically. V55 additionally seeds
+one common CRM group (access and customer read/create/update): directors, deputy
+directors, co-founder and system admin at ORGANIZATION; Sales department managers,
+Sales leads, Operations department managers and Support leads at UNIT_SUBTREE;
+Seller and Support agents at SELF. Other roles receive no new grant. Existing
+grants/scopes are preserved; no CRM administration, delete/export or campaign-send
+right is added by the common group. Marketing/special rights still use ERP's
+existing group UI. Runtime authorization checks capabilities, never role names.
 ERP currently assigns groups to roles; for selected employees sharing a role,
 use an existing custom role carrying the needed groups and retain their other
 required groups. This change does not add per-employee ACLs.
