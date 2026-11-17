@@ -92,3 +92,8 @@ loaded local image (`pull_policy: never`), preserves the upstream volume names,
 and disables password login. Set `HYPERTECH_CRM_IMAGE` to the release tag and
 supply the Clerk runtime variables in Coolify. Coolify manages the public HTTPS
 route. Keep the previous compose, environment and image for rollback.
+
+Coolify attaches a shared `.env` to service containers. Non-application services
+explicitly override application secrets with `${HYPERTECH_NONAPP_EMPTY:-}`; the
+placeholder avoids Coolify replacing a literal empty value with a stack secret.
+Verify rendered Compose and actual container environments before each release.
