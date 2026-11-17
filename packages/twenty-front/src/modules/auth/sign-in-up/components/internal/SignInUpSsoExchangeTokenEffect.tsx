@@ -2,10 +2,17 @@ import { useRedeemSsoExchangeToken } from '@/auth/hooks/useRedeemSsoExchangeToke
 import { useEffect } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 
-export const SignInUpSsoExchangeTokenEffect = () => {
+export const SignInUpSsoExchangeTokenEffect = ({
+  enabled,
+}: {
+  enabled: boolean;
+}) => {
   const { redeemSsoExchangeToken } = useRedeemSsoExchangeToken();
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
     const ssoExchangeToken = new URLSearchParams(
       window.location.hash.substring(1),
     ).get('ssoExchangeToken');
@@ -22,7 +29,7 @@ export const SignInUpSsoExchangeTokenEffect = () => {
     );
 
     void redeemSsoExchangeToken(ssoExchangeToken);
-  }, [redeemSsoExchangeToken]);
+  }, [enabled, redeemSsoExchangeToken]);
 
   return <></>;
 };

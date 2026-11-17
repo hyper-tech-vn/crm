@@ -25,7 +25,7 @@ export const SignInUpWithClerk = () => {
             window.location.assign(`${REACT_APP_SERVER_BASE_URL}/auth/clerk`)
           }
         >
-          {t`Continue with Hypertech`}
+          {t`Sign in`}
         </MainButton>
       </StyledSsoButtonContainer>
       <SignInUpSeparator />
