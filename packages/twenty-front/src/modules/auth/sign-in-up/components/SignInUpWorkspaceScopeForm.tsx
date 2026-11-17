@@ -1,3 +1,4 @@
+import { authProvidersState } from '@/client-config/states/authProvidersState';
 import { SignInUpWithClerk } from '@/auth/sign-in-up/components/internal/SignInUpWithClerk';
 import { StyledOnboardingContentContainer } from '@/auth/components/StyledOnboardingContentContainer';
 import { SignInUpWithCredentials } from '@/auth/sign-in-up/components/internal/SignInUpWithCredentials';
@@ -19,6 +20,7 @@ import { themeCssVariables } from 'twenty-ui/theme';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
 export const SignInUpWorkspaceScopeForm = () => {
+  const authProviders = useAtomStateValue(authProvidersState);
   const workspaceAuthProviders = useAtomStateValue(workspaceAuthProvidersState);
   const workspaceAuthBypassProviders = useAtomStateValue(
     workspaceAuthBypassProvidersState,
@@ -61,7 +63,7 @@ export const SignInUpWorkspaceScopeForm = () => {
         providers.password ? (
           <Separator style={{ marginBlock: themeCssVariables.spacing[3] }} />
         ) : null}
-        {providers.password && (
+        {!authProviders.clerk && providers.password && (
           // oxlint-disable-next-line react/jsx-props-no-spreading
           <FormProvider {...form}>
             <SignInUpWithCredentials />

@@ -124,6 +124,7 @@ import { EmailAndCaptchaInput } from './dto/user-exists.input';
 import { WorkspaceInviteHashValidDTO } from './dto/workspace-invite-hash-valid.dto';
 import { WorkspaceInviteHashValidInput } from './dto/workspace-invite-hash.input';
 import { AuthService } from './services/auth.service';
+import { ClerkPasswordAuthDisabledGuard } from './clerk/clerk-password-auth-disabled.guard';
 import { AccessPolicyGuard } from 'src/engine/guards/access-policy.guard';
 import { type AccessPolicy } from 'src/engine/guards/types/access-policy.type';
 
@@ -243,7 +244,12 @@ export class AuthResolver {
   }
 
   @Mutation(() => LoginTokenDTO)
-  @UseGuards(CaptchaGuard, PublicEndpointGuard, NoPermissionGuard)
+  @UseGuards(
+    ClerkPasswordAuthDisabledGuard,
+    CaptchaGuard,
+    PublicEndpointGuard,
+    NoPermissionGuard,
+  )
   @AllowSuspendedWorkspace()
   async getLoginTokenFromCredentials(
     @Args()
@@ -280,7 +286,12 @@ export class AuthResolver {
   }
 
   @Mutation(() => AvailableWorkspacesAndAccessTokensDTO)
-  @UseGuards(CaptchaGuard, PublicEndpointGuard, NoPermissionGuard)
+  @UseGuards(
+    ClerkPasswordAuthDisabledGuard,
+    CaptchaGuard,
+    PublicEndpointGuard,
+    NoPermissionGuard,
+  )
   @AllowSuspendedWorkspace()
   async signIn(
     @Args()
@@ -328,7 +339,11 @@ export class AuthResolver {
   }
 
   @Mutation(() => VerifyEmailAndGetLoginTokenDTO)
-  @UseGuards(PublicEndpointGuard, NoPermissionGuard)
+  @UseGuards(
+    ClerkPasswordAuthDisabledGuard,
+    PublicEndpointGuard,
+    NoPermissionGuard,
+  )
   @AllowSuspendedWorkspace()
   async verifyEmailAndGetLoginToken(
     @Args()
@@ -375,7 +390,11 @@ export class AuthResolver {
   }
 
   @Mutation(() => AvailableWorkspacesAndAccessTokensDTO)
-  @UseGuards(PublicEndpointGuard, NoPermissionGuard)
+  @UseGuards(
+    ClerkPasswordAuthDisabledGuard,
+    PublicEndpointGuard,
+    NoPermissionGuard,
+  )
   @AllowSuspendedWorkspace()
   async verifyEmailAndGetWorkspaceAgnosticToken(
     @Args()
@@ -542,7 +561,12 @@ export class AuthResolver {
   }
 
   @Mutation(() => AvailableWorkspacesAndAccessTokensDTO)
-  @UseGuards(CaptchaGuard, PublicEndpointGuard, NoPermissionGuard)
+  @UseGuards(
+    ClerkPasswordAuthDisabledGuard,
+    CaptchaGuard,
+    PublicEndpointGuard,
+    NoPermissionGuard,
+  )
   @AllowSuspendedWorkspace()
   async signUp(
     @Args() signUpInput: SignUpWithoutWorkspaceInput,
@@ -607,7 +631,12 @@ export class AuthResolver {
   }
 
   @Mutation(() => SignUpDTO)
-  @UseGuards(CaptchaGuard, PublicEndpointGuard, NoPermissionGuard)
+  @UseGuards(
+    ClerkPasswordAuthDisabledGuard,
+    CaptchaGuard,
+    PublicEndpointGuard,
+    NoPermissionGuard,
+  )
   @AllowSuspendedWorkspace()
   async signUpInWorkspace(
     @Args() signUpInput: SignUpInput,
@@ -1241,7 +1270,12 @@ export class AuthResolver {
   }
 
   @Mutation(() => EmailPasswordResetLinkDTO)
-  @UseGuards(CaptchaGuard, PublicEndpointGuard, NoPermissionGuard)
+  @UseGuards(
+    ClerkPasswordAuthDisabledGuard,
+    CaptchaGuard,
+    PublicEndpointGuard,
+    NoPermissionGuard,
+  )
   @AllowSuspendedWorkspace()
   async emailPasswordResetLink(
     @Args() emailPasswordResetInput: EmailPasswordResetLinkInput,
@@ -1270,7 +1304,11 @@ export class AuthResolver {
   }
 
   @Mutation(() => InvalidatePasswordDTO)
-  @UseGuards(PublicEndpointGuard, NoPermissionGuard)
+  @UseGuards(
+    ClerkPasswordAuthDisabledGuard,
+    PublicEndpointGuard,
+    NoPermissionGuard,
+  )
   @AllowSuspendedWorkspace()
   async updatePasswordViaResetToken(
     @Args()
@@ -1287,7 +1325,11 @@ export class AuthResolver {
   }
 
   @Query(() => ValidatePasswordResetTokenDTO)
-  @UseGuards(PublicEndpointGuard, NoPermissionGuard)
+  @UseGuards(
+    ClerkPasswordAuthDisabledGuard,
+    PublicEndpointGuard,
+    NoPermissionGuard,
+  )
   async validatePasswordResetToken(
     @Args() args: ValidatePasswordResetTokenInput,
   ): Promise<ValidatePasswordResetTokenDTO> {

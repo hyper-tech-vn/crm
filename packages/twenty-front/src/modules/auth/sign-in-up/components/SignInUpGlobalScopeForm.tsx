@@ -254,10 +254,12 @@ export const SignInUpGlobalScopeForm = () => {
           {(authProviders.google || authProviders.microsoft) && (
             <Separator style={{ marginBlock: themeCssVariables.spacing[3] }} />
           )}
-          {/* oxlint-disable-next-line react/jsx-props-no-spreading */}
-          <FormProvider {...form}>
-            <SignInUpWithCredentials isGlobalScope />
-          </FormProvider>
+          {!authProviders.clerk && (
+            // oxlint-disable-next-line react/jsx-props-no-spreading
+            <FormProvider {...form}>
+              <SignInUpWithCredentials isGlobalScope />
+            </FormProvider>
+          )}
           {signInUpStep === SignInUpStep.Password && (
             <StyledForgotPasswordLinkContainer>
               <Button

@@ -5,6 +5,8 @@
     "incremental": false
   },
   "include": [
+    "../packages/twenty-server/src/engine/core-modules/auth/clerk/clerk-password-auth-disabled.guard.ts",
+    "../packages/twenty-server/src/engine/core-modules/auth/clerk/clerk-password-auth-disabled.guard.spec.ts",
     "../packages/twenty-server/src/engine/core-modules/auth/clerk/clerk-enabled.ts",
     "../packages/twenty-server/src/engine/core-modules/auth/clerk/clerk-identity.ts",
     "../packages/twenty-server/src/engine/core-modules/auth/clerk/clerk-identity.spec.ts",

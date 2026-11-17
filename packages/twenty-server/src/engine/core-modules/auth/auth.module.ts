@@ -77,6 +77,7 @@ import { AuthResolver } from './auth.resolver';
 import { AuthService } from './services/auth.service';
 import { ClerkAuthController } from './clerk/clerk-auth.controller';
 import { ClerkOidcService } from './clerk/clerk-oidc.service';
+import { ClerkPasswordAuthDisabledGuard } from './clerk/clerk-password-auth-disabled.guard';
 
 @Module({
   imports: [
@@ -142,6 +143,7 @@ import { ClerkOidcService } from './clerk/clerk-oidc.service';
   ],
   providers: [
     ClerkOidcService,
+    ClerkPasswordAuthDisabledGuard,
     SignInUpService,
     ConnectionProviderFlowRedirectService,
     AuthService,

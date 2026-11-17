@@ -23,6 +23,7 @@ for path in changed:
     target = destination / 'server' / relative
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, target)
+    shutil.copy2(str(source) + ".map", str(target) + ".map")
 shutil.copytree(root / 'packages/twenty-front/build', destination / 'front')
 commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
 (destination / 'source-commit').write_text(commit + '\n')

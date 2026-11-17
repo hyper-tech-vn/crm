@@ -47,12 +47,13 @@ node node_modules/.bin/jest packages/twenty-server/src/engine/core-modules/auth/
   --config packages/twenty-server/jest.config.mjs --runInBand
 ```
 
-Validation of the first customization: 11 provider tests passed, the isolated
+Validation of the first customization: 13 provider tests passed, the isolated
 `node node_modules/.bin/tsgo -p hypertech/tsconfig.clerk.json` check passed,
 changed-file server/frontend lint passed, and the backend SWC build passed.
-The complete monorepo type checks are not green in this focused checkout: the
-email/client SDK/UI dependency outputs are not fully built. A complete frontend
-production build and real Clerk login remain release prerequisites.
+The complete frontend production build passes after building UI/SDK/renderer
+dependencies and extracting/compiling Lingui catalogs. Full monorepo type checks
+have not been rerun with all backend dependency outputs; the isolated provider
+check is green. A real Clerk login remains a release verification step.
 
 Before enabling production: build both server and frontend, configure a real
 confidential client, check the redirect and cookie flags, complete a permitted
@@ -97,3 +98,11 @@ Coolify attaches a shared `.env` to service containers. Non-application services
 explicitly override application secrets with `${HYPERTECH_NONAPP_EMPTY:-}`; the
 placeholder avoids Coolify replacing a literal empty value with a stack secret.
 Verify rendered Compose and actual container environments before each release.
+
+When Clerk is enabled, the custom guard denies the native password sign-in,
+sign-up, email-verification login and password-reset API entry points. The login
+screen hides credentials even if an existing workspace still advertises them.
+
+Before each frontend release run `lingui extract --overwrite --clean` and
+`lingui compile --typescript` in `packages/twenty-front`, then `vite build`.
+Generated translation catalog churn is a build artifact, not a source change.
