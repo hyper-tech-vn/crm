@@ -1,3 +1,11 @@
+import { erpCrmRequestStorage } from 'src/engine/core-modules/auth/erp/erp-crm-request-context';
+import { assertErpCrmReferences } from 'src/engine/core-modules/auth/erp/erp-crm-reference-policy';
+import {
+  applyErpCrmReadPolicy,
+  erpRecordPredicate,
+  requireErpCrmWrite,
+  requireErpRawWorkspaceQuery,
+} from 'src/engine/core-modules/auth/erp/erp-crm-record-policy';
 import { msg } from '@lingui/core/macro';
 import { isNonEmptyString } from '@sniptt/guards';
 import { QUERY_MAX_RECORDS } from 'twenty-shared/constants';
@@ -182,6 +190,7 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     sql: string,
     parameters: Record<string, unknown>,
   ): Promise<T[]> {
+    requireErpRawWorkspaceQuery();
     const compiled = compileTwentyOrmStatement({ sql, parameters });
 
     return this.options.executor.execute(compiled) as Promise<T[]>;
@@ -747,9 +756,10 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     });
 
     if (validationRules.length === 0) {
-      return (await this.options.internalContext.recordAccessGroupWrite.isWriteTransactionRequired(
-        this.buildRecordAccessGroupWriteTarget(),
-      ))
+      return erpCrmRequestStorage.getStore()?.policy ||
+        (await this.options.internalContext.recordAccessGroupWrite.isWriteTransactionRequired(
+          this.buildRecordAccessGroupWriteTarget(),
+        ))
         ? this.runAtomically((repository) => write(repository))
         : write(this);
     }
@@ -1007,6 +1017,12 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
       return { identifiers: [], generatedMaps: [], raw: [] };
     }
 
+    await assertErpCrmReferences(
+      this,
+      this.options.tableShape,
+      records,
+      'create',
+    );
     const filesFieldDiff =
       this.filesFieldSync.computeFilesFieldDiffBeforeInsert(
         records,
@@ -1121,6 +1137,12 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
       return { identifiers: [], generatedMaps: [], raw: [] };
     }
 
+    await assertErpCrmReferences(
+      this,
+      this.options.tableShape,
+      inputs.map((input) => input.data),
+      'update',
+    );
     const writableRecordIds = await this.resolveWritableRecordIds({
       ids: inputs.map((input) => input.id),
       operationType: 'update',
@@ -1486,7 +1508,13 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     ids: string[];
     operationType: ObjectRecordsOperationType;
   }): Promise<Set<string>> {
-    if (this.options.shouldBypassPermissionChecks) {
+    const erpWrite = requireErpCrmWrite(
+      this.options.tableShape,
+      operationType === 'destroy' || operationType === 'softDelete'
+        ? 'delete'
+        : 'update',
+    );
+    if (this.options.shouldBypassPermissionChecks && !erpWrite) {
       return new Set(ids);
     }
 
@@ -1494,6 +1522,15 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
       .where({ id: In(ids) })
       .withDeleted();
 
+    if (erpWrite && erpWrite.capability !== 'crm:admin') {
+      const predicate = erpRecordPredicate(
+        erpWrite.policy,
+        this.options.tableShape,
+        queryBuilder.alias,
+        erpWrite.capability,
+      );
+      queryBuilder.addRowAccessCondition(predicate.sql, predicate.parameters);
+    }
     await this.applyRowLevelPermissionPredicates(queryBuilder, operationType);
     queryBuilder.select(['id']);
 
@@ -1543,6 +1580,30 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
     data?: Partial<ObjectRecord>;
     writtenRecordsValidator?: WrittenRecordsValidator;
   }): Promise<ObjectRecord[]> {
+    if (kind === 'update' && data) {
+      await assertErpCrmReferences(
+        this,
+        this.options.tableShape,
+        [data],
+        'update',
+      );
+    }
+    const erpWrite = requireErpCrmWrite(
+      this.options.tableShape,
+      kind === 'update' || kind === 'restore' ? 'update' : 'delete',
+      data ? [data] : [],
+    );
+    if (erpWrite && erpWrite.capability !== 'crm:admin') {
+      const predicate = erpRecordPredicate(
+        erpWrite.policy,
+        this.options.tableShape,
+        selectQueryBuilder.alias,
+        erpWrite.capability,
+      );
+      selectQueryBuilder
+        .addRowAccessCondition(predicate.sql)
+        .setParameters(predicate.parameters);
+    }
     await this.validateWriteIsPermitted({
       operationType: OPERATION_TYPE_BY_MUTATION_KIND[kind],
       columnsToReturn,
@@ -1881,6 +1942,7 @@ export class WorkspaceRepository<TEntity extends ObjectLiteral = ObjectRecord> {
   private async onBeforeExecute(
     queryBuilder: WorkspaceSelectQueryBuilder,
   ): Promise<void> {
+    applyErpCrmReadPolicy(queryBuilder);
     await this.applyRowLevelPermissionPredicates(queryBuilder);
     await this.validateQueryIsPermitted(queryBuilder);
     await this.nullifyRlsRuleUnreadableFields(queryBuilder);

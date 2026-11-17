@@ -1,3 +1,6 @@
+import { ErpCrmRequestMiddleware } from 'src/engine/core-modules/auth/erp/erp-crm-request.middleware';
+import { ErpCrmGuard } from 'src/engine/core-modules/auth/erp/erp-crm.guard';
+import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
 import { type MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -48,6 +51,7 @@ const MIGRATED_REST_METHODS = [
 
 @Module({
   imports: [
+    TokenModule,
     SentryModule.forRoot(),
     GraphQLModule.forRootAsync<YogaDriverConfig>({
       driver: YogaDriver,
@@ -72,6 +76,7 @@ const MIGRATED_REST_METHODS = [
     FrontendModule,
   ],
   providers: [
+    { provide: APP_GUARD, useClass: ErpCrmGuard },
     {
       provide: APP_FILTER,
       useClass: UnhandledExceptionFilter,
@@ -84,6 +89,9 @@ const MIGRATED_REST_METHODS = [
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ErpCrmRequestMiddleware)
+      .forRoutes({ path: '*path', method: RequestMethod.ALL });
     const loggedApiPaths = Object.values(ApiPath).filter(
       (apiPath) => apiPath !== ApiPath.Health,
     );

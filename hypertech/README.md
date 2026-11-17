@@ -11,8 +11,8 @@ The independent provider uses Clerk's authorization-code flow with PKCE, state,
 nonce and an authenticated, encrypted, five-minute browser transaction cookie.
 The OIDC library verifies the ID token; when required email claims are absent,
 it also verifies the matching UserInfo subject; the application then requires a verified
-email and an exact Clerk subject/email pair from the operator's allowlist before
-entering Twenty's existing user/workspace/session flow.
+email. ERP authorizes access before entering Twenty's existing user/workspace/session flow.
+No Clerk role, metadata flag, email allowlist or Twenty membership grants ERP authority.
 
 Only single-workspace deployments and the `https://clerk.hyper-tech.vn` issuer are
 supported. The integration does not create an email/calendar connected account.
@@ -25,7 +25,10 @@ AUTH_CLERK_ENABLED=true
 AUTH_CLERK_ISSUER=https://clerk.hyper-tech.vn
 AUTH_CLERK_CLIENT_ID=<confidential OAuth client ID>
 AUTH_CLERK_CLIENT_SECRET=<confidential OAuth client secret>
-AUTH_CLERK_ALLOWED_IDENTITIES=[{"sub":"user_REPLACE","email":"admin@example.com"}]
+ERP_CRM_BASE_URL=https://erp.hyper-tech.vn
+ERP_CRM_ORGANIZATION_ID=<existing ERP organization UUID>
+ERP_CRM_WORKSPACE_ID=<existing Twenty workspace UUID>
+ERP_CRM_ADMIN_ROLE_ID=<existing native admin role UUID in that workspace>
 IS_MULTIWORKSPACE_ENABLED=false
 SERVER_URL=https://crm.hyper-tech.vn
 APP_SECRET=<existing stable random secret of at least 32 characters>
@@ -34,11 +37,19 @@ APP_SECRET=<existing stable random secret of at least 32 characters>
 Register the exact callback `https://crm.hyper-tech.vn/auth/clerk/callback` in
 Clerk. The OAuth client must support `openid profile email`, S256 and
 `client_secret_basic`. Keep secrets out of the image and build logs. Restart the
-application after changing OAuth configuration. Removing an allowlist entry
-blocks future logins; revoke that user's existing Twenty sessions separately.
-Clerk logout does not automatically revoke an existing Twenty session.
+application after changing OAuth configuration. ERP must enable `app.crm-access.enabled=true`
+and set `app.crm-access.client-id` to the exact confidential CRM OAuth client ID.
+The issuer and JWKS remain ERP's existing Clerk configuration; the extra audience
+is accepted only on `GET /api/v1/access/applications/crm`.
 
-## Verification
+See [ERP-AUTHORIZATION.md](ERP-AUTHORIZATION.md) for permissions, scope, migration,
+compatibility, verification and release order. Existing native sessions need a new
+Clerk login to establish the immutable ERP identity binding. ERP access is checked
+on each authenticated request; revocation does not wait for native session expiry.
+Clerk logout by itself does not revoke native sessions, but expired Clerk proof
+requires reauthentication. No refresh token is retained.
+
+## Original Clerk integration verification
 
 Use Node matching the root `engines`, the pinned Yarn release, and the upstream
 build workflow. The focused provider tests run with:

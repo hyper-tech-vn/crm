@@ -1,3 +1,6 @@
+import { ErpCrmLoginWorkspaceService } from './erp/erp-crm-login.workspace-service';
+import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
+import { RoleAssignmentModule } from 'src/engine/permissions/role-assignment/role-assignment.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -81,6 +84,8 @@ import { ClerkPasswordAuthDisabledGuard } from './clerk/clerk-password-auth-disa
 
 @Module({
   imports: [
+    RoleModule,
+    RoleAssignmentModule,
     JwtModule,
     WorkspaceDomainsModule,
     TokenModule,
@@ -142,6 +147,7 @@ import { ClerkPasswordAuthDisabledGuard } from './clerk/clerk-password-auth-disa
     ConnectionProviderCustomController,
   ],
   providers: [
+    ErpCrmLoginWorkspaceService,
     ClerkOidcService,
     ClerkPasswordAuthDisabledGuard,
     SignInUpService,

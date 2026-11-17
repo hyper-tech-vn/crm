@@ -1,8 +1,7 @@
 import {
-  authorizeClerkIdentity,
+  readVerifiedClerkIdentity,
   CLERK_TRANSACTION_TTL_MS,
   openClerkTransaction,
-  readClerkAllowlist,
   sealClerkTransaction,
 } from './clerk-identity';
 
@@ -16,32 +15,28 @@ const TRANSACTION = {
 };
 
 describe('Hypertech Clerk identity boundary', () => {
-  it('requires the configured subject and verified email together', () => {
+  it('requires a verified identity but leaves authorization to ERP', () => {
     expect(
-      authorizeClerkIdentity(
-        { ...IDENTITY, email: 'ADMIN@example.com', email_verified: true },
-        [IDENTITY],
-      ),
+      readVerifiedClerkIdentity({
+        ...IDENTITY,
+        email: 'ADMIN@example.com',
+        email_verified: true,
+      }),
     ).toEqual(IDENTITY);
+    expect(
+      readVerifiedClerkIdentity({
+        sub: 'user_other',
+        email: 'other@example.com',
+        email_verified: true,
+      }).sub,
+    ).toBe('user_other');
     for (const claims of [
       { ...IDENTITY, email_verified: false },
       { ...IDENTITY, email_verified: 'true' },
-      { ...IDENTITY, sub: 'user_attacker', email_verified: true },
-      { ...IDENTITY, email: 'other@example.com', email_verified: true },
+      { ...IDENTITY, sub: 'invalid', email_verified: true },
+      { ...IDENTITY, email: 'invalid', email_verified: true },
     ]) {
-      expect(() => authorizeClerkIdentity(claims, [IDENTITY])).toThrow();
-    }
-  });
-
-  it('does not accept an empty or malformed allowlist', () => {
-    for (const value of [
-      '[]',
-      '{}',
-      'null',
-      '[{"sub":"user_test"}]',
-      '[{"sub":"not-a-clerk-sub","email":"admin@example.com"}]',
-    ]) {
-      expect(() => readClerkAllowlist(value)).toThrow();
+      expect(() => readVerifiedClerkIdentity(claims)).toThrow();
     }
   });
 

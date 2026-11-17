@@ -23,7 +23,6 @@ describe('Clerk OIDC flow', () => {
       AUTH_CLERK_CLIENT_ID: 'client',
       AUTH_CLERK_CLIENT_SECRET: 'secret',
       APP_SECRET: SECRET,
-      AUTH_CLERK_ALLOWED_IDENTITIES: JSON.stringify([IDENTITY]),
       IS_MULTIWORKSPACE_ENABLED: 'false',
     };
   });
@@ -93,13 +92,18 @@ describe('Clerk OIDC flow', () => {
     );
   });
 
-  it.each(['authorized', 'unauthorized', 'mismatched'])(
-    'validates the token and enforces the allowlist (identity=%s)',
+  it.each(['authorized', 'another-verified-user', 'mismatched'])(
+    'validates signed identity and matching UserInfo subject (identity=%s)',
     async (identityCase) => {
-      const authorized = identityCase === 'authorized';
+      const authorized = identityCase !== 'mismatched';
       const callback = jest.fn().mockResolvedValue({
+        id_token: 'validated-id-token',
         claims: () => ({
-          sub: identityCase === 'unauthorized' ? 'user_other' : IDENTITY.sub,
+          sub:
+            identityCase === 'another-verified-user'
+              ? 'user_other'
+              : IDENTITY.sub,
+          exp: Math.floor(Date.now() / 1000) + 600,
         }),
       });
       const issuer = new Issuer({
@@ -159,11 +163,14 @@ describe('Clerk OIDC flow', () => {
         jwks_uri: 'https://clerk.hyper-tech.vn/.well-known/jwks.json',
         userinfo_endpoint: 'https://clerk.hyper-tech.vn/oauth/userinfo',
       });
-      jest
-        .spyOn(issuer.Client.prototype, 'callback')
-        .mockResolvedValue({
-          claims: () => ({ ...IDENTITY, email_verified: verified }),
-        } as unknown as TokenSet);
+      jest.spyOn(issuer.Client.prototype, 'callback').mockResolvedValue({
+        id_token: 'validated-id-token',
+        claims: () => ({
+          ...IDENTITY,
+          email_verified: verified,
+          exp: Math.floor(Date.now() / 1000) + 600,
+        }),
+      } as unknown as TokenSet);
       const userinfo = jest
         .spyOn(issuer.Client.prototype, 'userinfo')
         .mockRejectedValue(new Error('UserInfo unavailable'));

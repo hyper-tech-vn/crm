@@ -1,3 +1,7 @@
+import { ErpCrmAccessClient } from '../erp/erp-crm-access.client';
+import { ErpCrmAuthorizationService } from '../erp/erp-crm-authorization.service';
+import { ErpCrmIdentityStore } from '../erp/erp-crm-identity.store';
+import { ErpCrmIdentityEntity } from '../erp/erp-crm-identity.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -25,6 +29,7 @@ import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspac
   imports: [
     JwtModule,
     TypeOrmModule.forFeature([
+      ErpCrmIdentityEntity,
       UserEntity,
       AppTokenEntity,
       WorkspaceEntity,
@@ -37,6 +42,9 @@ import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspac
     UserSessionModule,
   ],
   providers: [
+    ErpCrmAccessClient,
+    ErpCrmAuthorizationService,
+    ErpCrmIdentityStore,
     RenewTokenService,
     JwtAuthStrategy,
     AccessTokenService,
@@ -48,6 +56,9 @@ import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspac
     provideWorkspaceScopedRepository(ApplicationEntity),
   ],
   exports: [
+    ErpCrmAccessClient,
+    ErpCrmAuthorizationService,
+    ErpCrmIdentityStore,
     RenewTokenService,
     AccessTokenService,
     LoginTokenService,

@@ -6,4 +6,4 @@ Retain upstream LICENSE, notices and trademark policy. Hypertech core modificati
 
 Implement the Hypertech Clerk client independently using standard OIDC via openid-client and the ordinary social-login/session extension points in AGPL source. Do not copy, modify, enable, remove checks from, or route through commercial SAML/OIDC identity-provider implementation files marked @license Enterprise. No Enterprise feature flag or fake license is enabled. The paid workspace SSO configuration UI remains unchanged.
 
-The custom authentication provider is Clerk-specific, statically configured by the operator and restricted to an explicit subject/email allowlist. It is separate from the vendor's configurable Enterprise SSO product.
+The custom authentication provider is Clerk-specific, statically configured by the operator and authorized by ERP through its existing access-control API. The ERP adapter and SQL ownership checks are original Hypertech code within existing AGPL extension points. It is separate from the vendor's configurable Enterprise SSO product.

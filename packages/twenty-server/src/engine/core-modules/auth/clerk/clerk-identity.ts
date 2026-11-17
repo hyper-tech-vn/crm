@@ -25,55 +25,6 @@ export type ClerkTransaction = {
 export const CLERK_TRANSACTION_COOKIE = '__Host-hypertech-clerk';
 export const CLERK_TRANSACTION_TTL_MS = 5 * 60 * 1000;
 
-export const readClerkAllowlist = (value: string): ClerkIdentity[] => {
-  const parsed: unknown = JSON.parse(value);
-
-  if (!Array.isArray(parsed) || parsed.length === 0) {
-    throw new Error('Clerk requires an explicit subject/email allowlist');
-  }
-
-  return parsed.map((entry: unknown) => {
-    if (
-      typeof entry !== 'object' ||
-      entry === null ||
-      !('sub' in entry) ||
-      !('email' in entry) ||
-      typeof entry.sub !== 'string' ||
-      typeof entry.email !== 'string' ||
-      !/^user_[A-Za-z0-9]+$/.test(entry.sub) ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(entry.email)
-    ) {
-      throw new Error('Invalid Clerk subject/email allowlist entry');
-    }
-
-    return { sub: entry.sub, email: entry.email.toLowerCase() };
-  });
-};
-
-export const authorizeClerkIdentity = (
-  claims: ClerkClaims,
-  allowlist: ClerkIdentity[],
-): ClerkIdentity => {
-  if (
-    claims.email_verified !== true ||
-    typeof claims.sub !== 'string' ||
-    typeof claims.email !== 'string'
-  ) {
-    throw new Error('Verified Clerk identity required');
-  }
-
-  const email = claims.email.toLowerCase();
-  const identity = allowlist.find(
-    (entry) => entry.sub === claims.sub && entry.email === email,
-  );
-
-  if (!identity) {
-    throw new Error('Clerk identity is not authorized for this CRM');
-  }
-
-  return identity;
-};
-
 const transactionKey = (secret: string): Buffer => {
   if (secret.length < 32) {
     throw new Error(
@@ -160,4 +111,19 @@ export const openClerkTransaction = (
     codeVerifier: decoded.codeVerifier,
     createdAt: decoded.createdAt,
   };
+};
+
+export const readVerifiedClerkIdentity = (
+  claims: ClerkClaims,
+): ClerkIdentity => {
+  if (
+    claims.email_verified !== true ||
+    typeof claims.sub !== 'string' ||
+    !/^user_[A-Za-z0-9]+$/.test(claims.sub) ||
+    typeof claims.email !== 'string' ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(claims.email)
+  ) {
+    throw new Error('Verified Clerk identity required');
+  }
+  return { sub: claims.sub, email: claims.email.toLowerCase() };
 };

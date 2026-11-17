@@ -9,11 +9,10 @@ import { type Request, type Response } from 'express';
 import { Client, generators, Issuer } from 'openid-client';
 
 import {
-  authorizeClerkIdentity,
+  readVerifiedClerkIdentity,
   CLERK_TRANSACTION_COOKIE,
   CLERK_TRANSACTION_TTL_MS,
   openClerkTransaction,
-  readClerkAllowlist,
   sealClerkTransaction,
   type ClerkClaims,
 } from './clerk-identity';
@@ -60,9 +59,6 @@ export class ClerkOidcService {
       clientId,
       clientSecret,
       transactionSecret,
-      allowlist: readClerkAllowlist(
-        process.env.AUTH_CLERK_ALLOWED_IDENTITIES ?? '[]',
-      ),
     };
   }
 
@@ -187,11 +183,17 @@ export class ClerkOidcService {
           throw new Error('Clerk UserInfo subject mismatch');
         }
       }
+      if (!tokens.id_token || !Number.isFinite(idTokenClaims.exp)) {
+        throw new Error('Missing identity token');
+      }
       step = 'identity';
-      const identity = authorizeClerkIdentity(claims, config.allowlist);
+      const identity = readVerifiedClerkIdentity(claims);
 
       return {
         email: identity.email,
+        clerkSubject: identity.sub,
+        idToken: tokens.id_token,
+        expiresAt: idTokenClaims.exp,
         firstName:
           typeof claims.given_name === 'string' ? claims.given_name : undefined,
         lastName:
