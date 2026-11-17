@@ -342,6 +342,9 @@ export class ClientConfigMaintenanceMode {
 
 @ObjectType()
 export class ClientConfig {
+  @Field(() => Boolean, { nullable: true })
+  isClerkAuthEnabled?: boolean;
+
   @Field(() => String, { nullable: true })
   appVersion?: string;
 

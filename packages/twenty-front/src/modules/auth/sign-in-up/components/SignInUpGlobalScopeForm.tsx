@@ -1,3 +1,4 @@
+import { SignInUpWithClerk } from '@/auth/sign-in-up/components/internal/SignInUpWithClerk';
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
 import { returnToPathState } from '@/auth/states/returnToPathState';
 import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
@@ -237,6 +238,7 @@ export const SignInUpGlobalScopeForm = () => {
       )}
       {signInUpStep !== SignInUpStep.WorkspaceSelection && (
         <StyledOnboardingContentContainer>
+          <SignInUpWithClerk />
           {authProviders.google && (
             <SignInUpWithGoogle
               action="list-available-workspaces"

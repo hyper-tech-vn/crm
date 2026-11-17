@@ -1070,7 +1070,10 @@ export class AuthService {
       locale,
       returnToPath,
     }: MicrosoftRequest['user'] | GoogleRequest['user'],
-    authProvider: AuthProviderEnum.Google | AuthProviderEnum.Microsoft,
+    authProvider:
+      | AuthProviderEnum.Google
+      | AuthProviderEnum.Microsoft
+      | AuthProviderEnum.Clerk,
   ): Promise<string> {
     const email = rawEmail.toLowerCase();
 
@@ -1159,12 +1162,14 @@ export class AuthService {
         billingCheckoutSessionState,
       });
 
-      await this.createSsoConnectedAccountIfFeatureFlagIsOn({
-        workspaceId: workspace.id,
-        userId: user.id,
-        handle: email,
-        authProvider,
-      });
+      if (authProvider !== AuthProviderEnum.Clerk) {
+        await this.createSsoConnectedAccountIfFeatureFlagIsOn({
+          workspaceId: workspace.id,
+          userId: user.id,
+          handle: email,
+          authProvider,
+        });
+      }
 
       const loginToken = await this.loginTokenService.generateLoginToken(
         user.email,

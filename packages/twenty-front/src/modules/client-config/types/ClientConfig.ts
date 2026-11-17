@@ -15,6 +15,7 @@ import { type EnterpriseInstanceType } from 'twenty-shared/constants';
 import { type OnboardingConfig } from '@/client-config/types/OnboardingConfig';
 
 export type ClientConfig = {
+  isClerkAuthEnabled?: boolean;
   appVersion?: string;
   aiModels: Array<ClientAiModelConfig>;
   aiEvaluationModels: Array<ClientAiEvaluationModelConfig>;

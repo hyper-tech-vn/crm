@@ -75,6 +75,8 @@ import { MessagingFolderSyncManagerModule } from 'src/modules/messaging/message-
 import { AuthResolver } from './auth.resolver';
 
 import { AuthService } from './services/auth.service';
+import { ClerkAuthController } from './clerk/clerk-auth.controller';
+import { ClerkOidcService } from './clerk/clerk-oidc.service';
 
 @Module({
   imports: [
@@ -128,6 +130,7 @@ import { AuthService } from './services/auth.service';
     UserSessionModule,
   ],
   controllers: [
+    ClerkAuthController,
     GoogleAuthController,
     MicrosoftAuthController,
     GoogleAPIsAuthController,
@@ -138,6 +141,7 @@ import { AuthService } from './services/auth.service';
     ConnectionProviderCustomController,
   ],
   providers: [
+    ClerkOidcService,
     SignInUpService,
     ConnectionProviderFlowRedirectService,
     AuthService,

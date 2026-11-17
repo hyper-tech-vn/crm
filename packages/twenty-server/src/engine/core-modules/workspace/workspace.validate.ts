@@ -2,6 +2,7 @@ import {
   AuthException,
   AuthExceptionCode,
 } from 'src/engine/core-modules/auth/auth.exception';
+import { isClerkAuthEnabled } from 'src/engine/core-modules/auth/clerk/clerk-enabled';
 import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/workspace.type';
 import { type WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 
@@ -13,6 +14,10 @@ const isAuthEnabledOrThrow = (
     AuthExceptionCode.OAUTH_ACCESS_DENIED,
   ),
 ) => {
+  if (provider === AuthProviderEnum.Clerk && isClerkAuthEnabled()) {
+    return true;
+  }
+
   if (provider === AuthProviderEnum.Google && workspace.isGoogleAuthEnabled) {
     return true;
   }
@@ -39,6 +44,10 @@ const isAuthEnabled = (
   provider: AuthProviderEnum,
   workspace: WorkspaceEntity,
 ) => {
+  if (provider === AuthProviderEnum.Clerk && isClerkAuthEnabled()) {
+    return true;
+  }
+
   if (provider === AuthProviderEnum.Google && workspace.isGoogleAuthEnabled) {
     return true;
   }

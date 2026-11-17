@@ -1,3 +1,4 @@
+import { SignInUpWithClerk } from '@/auth/sign-in-up/components/internal/SignInUpWithClerk';
 import { StyledOnboardingContentContainer } from '@/auth/components/StyledOnboardingContentContainer';
 import { SignInUpWithCredentials } from '@/auth/sign-in-up/components/internal/SignInUpWithCredentials';
 import { SignInUpWithGoogle } from '@/auth/sign-in-up/components/internal/SignInUpWithGoogle';
@@ -45,6 +46,7 @@ export const SignInUpWorkspaceScopeForm = () => {
   return (
     <>
       <StyledOnboardingContentContainer>
+        <SignInUpWithClerk />
         {providers.google && <SignInUpWithGoogle action="join-workspace" />}
 
         {providers.microsoft && (
