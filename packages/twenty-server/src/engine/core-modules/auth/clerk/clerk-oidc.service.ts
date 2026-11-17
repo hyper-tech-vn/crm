@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -18,9 +19,11 @@ import {
 } from './clerk-identity';
 
 import { isClerkAuthEnabled } from './clerk-enabled';
+import { readCookieValue } from 'src/engine/core-modules/user-session/utils/read-cookie-value.util';
 
 @Injectable()
 export class ClerkOidcService {
+  private readonly logger = new Logger(ClerkOidcService.name);
   private clientPromise: Promise<Client> | undefined;
 
   private config() {
@@ -141,9 +144,13 @@ export class ClerkOidcService {
     response.setHeader('Cache-Control', 'no-store');
     response.setHeader('Referrer-Policy', 'no-referrer');
 
+    let step = 'transaction';
+
     try {
-      const cookies: Record<string, unknown> = request.cookies ?? {};
-      const encrypted = cookies[CLERK_TRANSACTION_COOKIE];
+      const encrypted = readCookieValue({
+        cookieHeader: request.headers.cookie ?? '',
+        cookieName: CLERK_TRANSACTION_COOKIE,
+      });
       const state = request.query.state;
 
       if (typeof encrypted !== 'string' || typeof state !== 'string') {
@@ -156,6 +163,7 @@ export class ClerkOidcService {
         config.transactionSecret,
       );
       const client = await this.client();
+      step = 'token';
       const tokens = await client.callback(
         config.callbackUrl,
         client.callbackParams(request),
@@ -165,12 +173,14 @@ export class ClerkOidcService {
           code_verifier: transaction.codeVerifier,
         },
       );
+      step = 'userinfo';
       const idTokenClaims = tokens.claims();
       const claims: ClerkClaims = await client.userinfo(tokens);
 
       if (claims.sub !== idTokenClaims.sub) {
         throw new Error('Clerk UserInfo subject mismatch');
       }
+      step = 'identity';
       const identity = authorizeClerkIdentity(claims, config.allowlist);
 
       return {
@@ -184,7 +194,9 @@ export class ClerkOidcService {
         picture: null,
         action: 'list-available-workspaces' as const,
       };
-    } catch {
+    } catch (error: unknown) {
+      const errorName = error instanceof Error ? error.name : 'Unknown';
+      this.logger.warn(`Clerk sign-in rejected at ${step} (${errorName})`);
       throw new UnauthorizedException(
         'Clerk sign-in failed. Please start a new sign-in.',
       );

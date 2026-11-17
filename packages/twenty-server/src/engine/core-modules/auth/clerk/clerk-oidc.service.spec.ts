@@ -54,7 +54,7 @@ describe('Clerk OIDC flow', () => {
       new ClerkOidcService().finish(
         {
           query: { state: 'state', code: 'untrusted-code' },
-          cookies: {},
+          headers: {},
         } as unknown as Request,
         response(),
       ),
@@ -77,7 +77,9 @@ describe('Clerk OIDC flow', () => {
       new ClerkOidcService().finish(
         {
           query: { state: 'attacker-state', code: 'untrusted-code' },
-          cookies: { [CLERK_TRANSACTION_COOKIE]: cookie },
+          headers: {
+            cookie: `unrelated=value; ${CLERK_TRANSACTION_COOKIE}=${cookie}`,
+          },
         } as unknown as Request,
         response(),
       ),
@@ -126,8 +128,8 @@ describe('Clerk OIDC flow', () => {
         method: 'GET',
         url: '/auth/clerk/callback?state=state&code=code',
         query: { state: 'state', code: 'code' },
-        cookies: {
-          [CLERK_TRANSACTION_COOKIE]: sealClerkTransaction(transaction, SECRET),
+        headers: {
+          cookie: `${CLERK_TRANSACTION_COOKIE}=${sealClerkTransaction(transaction, SECRET)}`,
         },
       } as unknown as Request;
       const result = new ClerkOidcService().finish(request, response());
