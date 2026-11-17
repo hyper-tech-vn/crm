@@ -173,12 +173,19 @@ export class ClerkOidcService {
           code_verifier: transaction.codeVerifier,
         },
       );
-      step = 'userinfo';
       const idTokenClaims = tokens.claims();
-      const claims: ClerkClaims = await client.userinfo(tokens);
+      let claims: ClerkClaims = idTokenClaims;
 
-      if (claims.sub !== idTokenClaims.sub) {
-        throw new Error('Clerk UserInfo subject mismatch');
+      if (
+        typeof claims.email !== 'string' ||
+        typeof claims.email_verified !== 'boolean'
+      ) {
+        step = 'userinfo';
+        claims = await client.userinfo(tokens);
+
+        if (claims.sub !== idTokenClaims.sub) {
+          throw new Error('Clerk UserInfo subject mismatch');
+        }
       }
       step = 'identity';
       const identity = authorizeClerkIdentity(claims, config.allowlist);

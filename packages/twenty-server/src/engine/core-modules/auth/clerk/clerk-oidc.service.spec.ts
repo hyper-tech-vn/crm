@@ -1,6 +1,6 @@
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { type Request, type Response } from 'express';
-import { Issuer } from 'openid-client';
+import { Issuer, type TokenSet } from 'openid-client';
 
 import { ClerkOidcService } from './clerk-oidc.service';
 import {
@@ -147,6 +147,48 @@ describe('Clerk OIDC flow', () => {
         expect.objectContaining({ code: 'code' }),
         { state: 'state', nonce: 'nonce', code_verifier: 'verifier' },
       );
+    },
+  );
+  it.each([true, false])(
+    'uses signed ID-token email claims without a UserInfo dependency (verified=%s)',
+    async (verified) => {
+      const issuer = new Issuer({
+        issuer: 'https://clerk.hyper-tech.vn',
+        authorization_endpoint: 'https://clerk.hyper-tech.vn/oauth/authorize',
+        token_endpoint: 'https://clerk.hyper-tech.vn/oauth/token',
+        jwks_uri: 'https://clerk.hyper-tech.vn/.well-known/jwks.json',
+        userinfo_endpoint: 'https://clerk.hyper-tech.vn/oauth/userinfo',
+      });
+      jest
+        .spyOn(issuer.Client.prototype, 'callback')
+        .mockResolvedValue({
+          claims: () => ({ ...IDENTITY, email_verified: verified }),
+        } as unknown as TokenSet);
+      const userinfo = jest
+        .spyOn(issuer.Client.prototype, 'userinfo')
+        .mockRejectedValue(new Error('UserInfo unavailable'));
+      jest.spyOn(Issuer, 'discover').mockResolvedValue(issuer);
+      const transaction = {
+        state: 'state',
+        nonce: 'nonce',
+        codeVerifier: 'verifier',
+        createdAt: Date.now(),
+      };
+      const request = {
+        method: 'GET',
+        url: '/auth/clerk/callback?state=state&code=code',
+        query: { state: 'state', code: 'code' },
+        headers: {
+          cookie: `${CLERK_TRANSACTION_COOKIE}=${sealClerkTransaction(transaction, SECRET)}`,
+        },
+      } as unknown as Request;
+      const result = new ClerkOidcService().finish(request, response());
+      if (verified) {
+        await expect(result).resolves.toMatchObject({ email: IDENTITY.email });
+      } else {
+        await expect(result).rejects.toBeInstanceOf(UnauthorizedException);
+      }
+      expect(userinfo).not.toHaveBeenCalled();
     },
   );
 });

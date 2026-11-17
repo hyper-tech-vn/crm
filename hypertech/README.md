@@ -9,7 +9,8 @@ Fork of [Twenty](https://github.com/twentyhq/twenty) pinned to `twenty/v2.59.0`
 The login screen exposes **Continue with Hypertech** when the provider is enabled.
 The independent provider uses Clerk's authorization-code flow with PKCE, state,
 nonce and an authenticated, encrypted, five-minute browser transaction cookie.
-The OIDC library verifies the ID token and matching UserInfo subject; the application then requires a verified
+The OIDC library verifies the ID token; when required email claims are absent,
+it also verifies the matching UserInfo subject; the application then requires a verified
 email and an exact Clerk subject/email pair from the operator's allowlist before
 entering Twenty's existing user/workspace/session flow.
 
@@ -47,7 +48,7 @@ node node_modules/.bin/jest packages/twenty-server/src/engine/core-modules/auth/
   --config packages/twenty-server/jest.config.mjs --runInBand
 ```
 
-Validation of the first customization: 13 provider tests passed, the isolated
+Validation of the first customization: 15 provider tests passed, the isolated
 `node node_modules/.bin/tsgo -p hypertech/tsconfig.clerk.json` check passed,
 changed-file server/frontend lint passed, and the backend SWC build passed.
 The complete frontend production build passes after building UI/SDK/renderer
