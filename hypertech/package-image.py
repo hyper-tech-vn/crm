@@ -16,7 +16,7 @@ changed = subprocess.check_output(
 ).splitlines()
 server_prefix = 'packages/twenty-server/src/'
 for path in changed:
-    if not path.startswith(server_prefix) or not path.endswith('.ts') or path.endswith('.spec.ts'):
+    if not path.startswith(server_prefix) or not path.endswith('.ts') or path.endswith('.spec.ts') or '/__tests__/' in path:
         continue
     relative = pathlib.Path(path.removeprefix(server_prefix)).with_suffix('.js')
     source = root / 'packages/twenty-server/dist' / relative
