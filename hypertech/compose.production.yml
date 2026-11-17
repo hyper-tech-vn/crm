@@ -27,7 +27,7 @@ services:
       AUTH_CLERK_ISSUER: https://clerk.hyper-tech.vn
       AUTH_CLERK_CLIENT_ID: ${AUTH_CLERK_CLIENT_ID}
       AUTH_CLERK_CLIENT_SECRET: ${AUTH_CLERK_CLIENT_SECRET}
-      ERP_CRM_BASE_URL: https://erp.hyper-tech.vn
+      ERP_CRM_BASE_URL: https://erp-api.hyper-tech.vn
       ERP_CRM_ORGANIZATION_ID: ${ERP_CRM_ORGANIZATION_ID}
       ERP_CRM_WORKSPACE_ID: ${ERP_CRM_WORKSPACE_ID}
       ERP_CRM_ADMIN_ROLE_ID: ${ERP_CRM_ADMIN_ROLE_ID}
@@ -85,7 +85,7 @@ services:
       AUTH_CLERK_ISSUER: https://clerk.hyper-tech.vn
       AUTH_CLERK_CLIENT_ID: ${AUTH_CLERK_CLIENT_ID}
       AUTH_CLERK_CLIENT_SECRET: ${AUTH_CLERK_CLIENT_SECRET}
-      ERP_CRM_BASE_URL: https://erp.hyper-tech.vn
+      ERP_CRM_BASE_URL: https://erp-api.hyper-tech.vn
       ERP_CRM_ORGANIZATION_ID: ${ERP_CRM_ORGANIZATION_ID}
       ERP_CRM_WORKSPACE_ID: ${ERP_CRM_WORKSPACE_ID}
       ERP_CRM_ADMIN_ROLE_ID: ${ERP_CRM_ADMIN_ROLE_ID}

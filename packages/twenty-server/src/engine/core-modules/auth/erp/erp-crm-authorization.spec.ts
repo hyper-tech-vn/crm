@@ -61,7 +61,7 @@ describe('ERP CRM boundary', () => {
     process.env = {
       ...environment,
       AUTH_CLERK_ENABLED: 'true',
-      ERP_CRM_BASE_URL: 'https://erp.hyper-tech.vn',
+      ERP_CRM_BASE_URL: 'https://erp-api.hyper-tech.vn',
       ERP_CRM_ORGANIZATION_ID: organizationId,
       ERP_CRM_WORKSPACE_ID: workspaceId,
       APP_SECRET: 'test-secret-with-more-than-thirty-two-characters',
@@ -128,7 +128,7 @@ describe('ERP CRM boundary', () => {
       new ErpCrmAccessClient().resolve('signed-token'),
     ).rejects.toBeInstanceOf(ServiceUnavailableException);
     expect(fetch).toHaveBeenCalledWith(
-      'https://erp.hyper-tech.vn/api/v1/access/applications/crm',
+      'https://erp-api.hyper-tech.vn/api/v1/access/applications/crm',
       expect.objectContaining({
         redirect: 'error',
         headers: expect.objectContaining({

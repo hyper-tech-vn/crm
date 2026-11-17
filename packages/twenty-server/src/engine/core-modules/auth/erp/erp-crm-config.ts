@@ -11,7 +11,7 @@ export const getErpCrmConfig = () => {
   const secret = process.env.APP_SECRET ?? '';
 
   if (
-    base.origin !== 'https://erp.hyper-tech.vn' ||
+    base.origin !== 'https://erp-api.hyper-tech.vn' ||
     base.pathname !== '/' ||
     base.search ||
     base.hash ||
