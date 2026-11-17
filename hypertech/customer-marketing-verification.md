@@ -36,3 +36,5 @@ Application manifest content hash: `c8082156904dfba0c82140e3bc3a7b1b89f84da529bf
 ## Release compiler correction
 
 Direct SWC compilation passed syntax checks but emitted ESM with unresolved src aliases. The isolated new-image bootstrap detected this before rollout. Rebuilt with the repository production command `nest build --path ./tsconfig.build.json` (10589 files, CommonJS and resolved aliases); packaging now rejects the wrong compiler output. The first image candidate was never started in production. Native image application-context preflight is required before switching Coolify.
+
+The image bootstrap also detected JwtAuthGuard missing WorkspaceCacheStorageService in AuthModule. Imported the existing WorkspaceCacheStorageModule (no new module), then reran full server typecheck, changed-file lint,32 focused tests and the Nest build successfully. The replacement image must pass the same isolated bootstrap before release.

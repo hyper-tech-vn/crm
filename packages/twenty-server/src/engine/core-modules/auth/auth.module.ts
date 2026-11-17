@@ -73,6 +73,7 @@ import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-ac
 import { ConnectedAccountTokenEncryptionModule } from 'src/engine/metadata-modules/connected-account/services/connected-account-token-encryption.module';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
 import { PermissionsModule } from 'src/engine/permissions/permissions.module';
+import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 import { CalendarCommonModule } from 'src/modules/calendar/common/calendar-common.module';
 import { ConnectedAccountModule } from 'src/modules/connected-account/connected-account.module';
@@ -133,6 +134,7 @@ import { ClerkPasswordAuthDisabledGuard } from './clerk/clerk-password-auth-disa
     ConnectionProviderModule,
     ApplicationConnectionsModule,
     WorkspaceCacheModule,
+    WorkspaceCacheStorageModule,
     SecureHttpClientModule,
     EnterpriseModule,
     BillingModule,
