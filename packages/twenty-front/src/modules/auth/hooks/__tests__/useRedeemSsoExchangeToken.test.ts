@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { Provider as JotaiProvider } from 'jotai';
 
+import { isMultiWorkspaceEnabledState } from '@/client-config/states/isMultiWorkspaceEnabledState';
 import { isAppEffectRedirectEnabledState } from '@/auth/states/isAppEffectRedirectEnabledState';
 import { useRedeemSsoExchangeToken } from '@/auth/hooks/useRedeemSsoExchangeToken';
 import { isCookieAuthActiveState } from '@/auth/states/isCookieAuthActiveState';
@@ -14,6 +15,25 @@ import {
 } from '@/ui/utilities/state/jotai/jotaiStore';
 
 const mockGetAuthTokensFromSsoExchangeToken = jest.fn();
+const mockLoadCurrentUser = jest.fn();
+const mockNavigateAfterSignIn = jest.fn();
+const mockGetWorkspaceAuthTokens = jest.fn();
+let mockIsOnAWorkspace = true;
+
+jest.mock('@/domain-manager/hooks/useIsCurrentLocationOnAWorkspace', () => ({
+  useIsCurrentLocationOnAWorkspace: () => ({
+    isOnAWorkspace: mockIsOnAWorkspace,
+  }),
+}));
+jest.mock('@/users/hooks/useLoadCurrentUser', () => ({
+  useLoadCurrentUser: () => ({ loadCurrentUser: mockLoadCurrentUser }),
+}));
+jest.mock('@/auth/hooks/useAuth', () => ({
+  useAuth: () => ({
+    navigateAfterMultiWorkspaceSignInUp: mockNavigateAfterSignIn,
+    getAuthTokensFromLoginToken: mockGetWorkspaceAuthTokens,
+  }),
+}));
 
 jest.mock('@apollo/client/react', () => ({
   ...jest.requireActual('@apollo/client/react'),
@@ -51,9 +71,22 @@ const freshTokenPair = {
 describe('useRedeemSsoExchangeToken', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockIsOnAWorkspace = true;
+    mockLoadCurrentUser.mockResolvedValue({
+      user: {
+        availableWorkspaces: {
+          availableWorkspacesForSignIn: [
+            { loginToken: 'workspace-login-token' },
+          ],
+        },
+        email: 'admin@example.com',
+      },
+    });
+    mockNavigateAfterSignIn.mockResolvedValue(undefined);
     localStorage.clear();
     clearSessionGeneration();
     resetJotaiStore();
+    jotaiStore.set(isMultiWorkspaceEnabledState.atom, false);
 
     mockGetAuthTokensFromSsoExchangeToken.mockResolvedValue({
       data: {
@@ -91,6 +124,48 @@ describe('useRedeemSsoExchangeToken', () => {
 
     expect(jotaiStore.get(isCookieAuthActiveState.atom)).toBe(true);
     expect(getSessionGeneration()).not.toBeNull();
+  });
+
+  it('loads the authenticated user and enters native workspace verification on a workspace domain', async () => {
+    const { result } = renderHooks();
+    await result.current.redeemSsoExchangeToken('sso-exchange-token');
+    expect(mockLoadCurrentUser).toHaveBeenCalledTimes(1);
+    expect(mockGetWorkspaceAuthTokens).toHaveBeenCalledWith(
+      'workspace-login-token',
+    );
+    expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
+  });
+
+  it('uses domain navigation for multi-workspace deployments', async () => {
+    jotaiStore.set(isMultiWorkspaceEnabledState.atom, true);
+    const { result } = renderHooks();
+    await result.current.redeemSsoExchangeToken('sso-exchange-token');
+    expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
+    expect(mockGetWorkspaceAuthTokens).not.toHaveBeenCalled();
+  });
+
+  it('refuses to guess a workspace or automatically enroll an account', async () => {
+    mockLoadCurrentUser.mockResolvedValueOnce({
+      user: {
+        availableWorkspaces: { availableWorkspacesForSignIn: [] },
+        email: 'admin@example.com',
+      },
+    });
+    const { result } = renderHooks();
+    await result.current.redeemSsoExchangeToken('sso-exchange-token');
+    expect(mockGetWorkspaceAuthTokens).not.toHaveBeenCalled();
+    expect(mockEnqueueToast).toHaveBeenCalledWith({
+      status: 'error',
+      children: 'Authentication failed',
+    });
+  });
+
+  it('leaves central-domain workspace selection to the existing global effect', async () => {
+    mockIsOnAWorkspace = false;
+    const { result } = renderHooks();
+    await result.current.redeemSsoExchangeToken('sso-exchange-token');
+    expect(mockLoadCurrentUser).not.toHaveBeenCalled();
+    expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
   });
 
   it('should leave the session inactive when the exchange fails', async () => {
