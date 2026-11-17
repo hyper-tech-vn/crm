@@ -6,6 +6,9 @@ import sys
 root = pathlib.Path(__file__).resolve().parents[1]
 base = 'd690a8c63e161d6257e5f0b165fb3d9b6b40ea1f'
 subprocess.run(['git', 'diff', '--exit-code', 'HEAD'], cwd=root, check=True)
+compiled_app = root / 'packages/twenty-server/dist/app.module.js'
+if not compiled_app.exists() or not compiled_app.read_text().startswith('"use strict";'):
+    raise SystemExit('Build the server with nest build --path ./tsconfig.build.json before packaging')
 destination = pathlib.Path(sys.argv[1]).resolve()
 if destination.exists():
     raise SystemExit('Use a new empty packaging directory')

@@ -32,3 +32,7 @@ Application manifest content hash: `c8082156904dfba0c82140e3bc3a7b1b89f84da529bf
 | `native-customer-detail-final.jpg` | `cd3284c8095370906dc821eb550872e32548ea7365d61dd42023aaf0d1b1f3cd` |
 | `native-customer-mobile-final.jpg` | `44c8fb9285c3c1e4f62cee5b525bc43343449cfcf3e7460af7fbfb9a99cb2aef` |
 | `native-campaign-final.jpg`        | `338a68c861dfd667750fbbe78d9ee63ad47124013aa7cc7ab1b067b3fc4def93` |
+
+## Release compiler correction
+
+Direct SWC compilation passed syntax checks but emitted ESM with unresolved src aliases. The isolated new-image bootstrap detected this before rollout. Rebuilt with the repository production command `nest build --path ./tsconfig.build.json` (10589 files, CommonJS and resolved aliases); packaging now rejects the wrong compiler output. The first image candidate was never started in production. Native image application-context preflight is required before switching Coolify.
