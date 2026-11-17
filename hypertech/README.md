@@ -9,7 +9,7 @@ Fork of [Twenty](https://github.com/twentyhq/twenty) pinned to `twenty/v2.59.0`
 The login screen exposes **Continue with Hypertech** when the provider is enabled.
 The independent provider uses Clerk's authorization-code flow with PKCE, state,
 nonce and an authenticated, encrypted, five-minute browser transaction cookie.
-The OIDC library verifies the ID token; the application then requires a verified
+The OIDC library verifies the ID token and matching UserInfo subject; the application then requires a verified
 email and an exact Clerk subject/email pair from the operator's allowlist before
 entering Twenty's existing user/workspace/session flow.
 
@@ -47,7 +47,7 @@ node node_modules/.bin/jest packages/twenty-server/src/engine/core-modules/auth/
   --config packages/twenty-server/jest.config.mjs --runInBand
 ```
 
-Validation of the first customization: 10 provider tests passed, the isolated
+Validation of the first customization: 11 provider tests passed, the isolated
 `node node_modules/.bin/tsgo -p hypertech/tsconfig.clerk.json` check passed,
 changed-file server/frontend lint passed, and the backend SWC build passed.
 The complete monorepo type checks are not green in this focused checkout: the
@@ -70,3 +70,25 @@ contacts or send campaigns.
 
 See [LICENSE-BOUNDARY.md](LICENSE-BOUNDARY.md) and the upstream [LICENSE](../LICENSE).
 Publish the matching source commit and source URL with each deployed custom image.
+
+## Release image
+
+The release image layers the compiled server changes and the complete frontend
+build over the exact upstream amd64 image digest in `hypertech/Dockerfile`.
+Unchanged server code and dependencies remain from that pinned image. This does
+not run a second dependency installation on the execution host.
+
+After committing source changes and completing the normal dependency, backend
+and frontend builds:
+
+```sh
+python3 hypertech/package-image.py /tmp/hypertech-crm-release
+# Run on an amd64 Docker host with that context:
+docker build --build-arg SOURCE_COMMIT=<git-sha> -t hypertech-crm:clerk-<git-sha> /tmp/hypertech-crm-release
+```
+
+`compose.production.yml` is the Coolify desired state. It uses an explicitly
+loaded local image (`pull_policy: never`), preserves the upstream volume names,
+and disables password login. Set `HYPERTECH_CRM_IMAGE` to the release tag and
+supply the Clerk runtime variables in Coolify. Coolify manages the public HTTPS
+route. Keep the previous compose, environment and image for rollback.

@@ -73,6 +73,7 @@ export class ClerkOidcService {
             issuer.metadata.authorization_endpoint,
             issuer.metadata.token_endpoint,
             issuer.metadata.jwks_uri,
+            issuer.metadata.userinfo_endpoint,
           ]) {
             if (!endpoint || new URL(endpoint).origin !== config.issuer) {
               throw new Error('Unexpected Clerk discovery endpoint');
@@ -164,7 +165,12 @@ export class ClerkOidcService {
           code_verifier: transaction.codeVerifier,
         },
       );
-      const claims: ClerkClaims = tokens.claims();
+      const idTokenClaims = tokens.claims();
+      const claims: ClerkClaims = await client.userinfo(tokens);
+
+      if (claims.sub !== idTokenClaims.sub) {
+        throw new Error('Clerk UserInfo subject mismatch');
+      }
       const identity = authorizeClerkIdentity(claims, config.allowlist);
 
       return {

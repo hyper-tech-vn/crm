@@ -91,27 +91,30 @@ describe('Clerk OIDC flow', () => {
     );
   });
 
-  it.each([true, false])(
-    'validates the token and enforces the allowlist (authorized=%s)',
-    async (authorized) => {
-      const callback = jest
-        .fn()
-        .mockResolvedValue({
-          claims: () => ({
-            ...IDENTITY,
-            sub: authorized ? IDENTITY.sub : 'user_other',
-            email_verified: true,
-          }),
-        });
+  it.each(['authorized', 'unauthorized', 'mismatched'])(
+    'validates the token and enforces the allowlist (identity=%s)',
+    async (identityCase) => {
+      const authorized = identityCase === 'authorized';
+      const callback = jest.fn().mockResolvedValue({
+        claims: () => ({
+          sub: identityCase === 'unauthorized' ? 'user_other' : IDENTITY.sub,
+        }),
+      });
       const issuer = new Issuer({
         issuer: 'https://clerk.hyper-tech.vn',
         authorization_endpoint: 'https://clerk.hyper-tech.vn/oauth/authorize',
         token_endpoint: 'https://clerk.hyper-tech.vn/oauth/token',
         jwks_uri: 'https://clerk.hyper-tech.vn/.well-known/jwks.json',
+        userinfo_endpoint: 'https://clerk.hyper-tech.vn/oauth/userinfo',
       });
       jest
         .spyOn(issuer.Client.prototype, 'callback')
         .mockImplementation(callback);
+      jest.spyOn(issuer.Client.prototype, 'userinfo').mockResolvedValue({
+        ...IDENTITY,
+        sub: identityCase === 'authorized' ? IDENTITY.sub : 'user_other',
+        email_verified: true,
+      });
       jest.spyOn(Issuer, 'discover').mockResolvedValue(issuer);
       const transaction = {
         state: 'state',
