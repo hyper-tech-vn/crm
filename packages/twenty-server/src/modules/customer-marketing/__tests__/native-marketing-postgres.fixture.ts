@@ -1,3 +1,4 @@
+import { computeObjectTargetTable } from 'src/engine/utils/compute-object-target-table.util';
 import { type RawAuthContext } from 'src/engine/core-modules/auth/types/raw-auth-context.type';
 import { DataSource } from 'typeorm';
 import { FieldMetadataType, FeatureFlagKey } from 'twenty-shared/types';
@@ -78,13 +79,14 @@ const objects = definitions.map((definition) => {
     universalIdentifier: definition.universalIdentifier,
     nameSingular: definition.nameSingular,
     namePlural: definition.namePlural,
+    applicationUniversalIdentifier: '9b283fec-ec32-56a2-b0ce-3b6c38e3a099',
     workspaceId: NATIVE_WORKSPACE,
     fieldIds: fields.map((field) => field.id),
   });
   const tableShape: WorkspaceTableShape = {
     objectMetadataId: definition.universalIdentifier,
     nameSingular: definition.nameSingular,
-    tableName: definition.nameSingular,
+    tableName: computeObjectTargetTable(metadata),
     schemaName: NATIVE_TEST_SCHEMA,
     columnNames: fields.map((field) => field.name),
     columnShapeByColumnName: Object.fromEntries(
@@ -160,11 +162,11 @@ export const prepareNativeTables = async (database: DataSource) => {
       return `"${field.name}" ${type}${field.name === 'id' ? ' PRIMARY KEY' : ''}${field.isNullable === false ? ' NOT NULL' : ''}${defaultValue}`;
     });
     await database.query(
-      `CREATE TABLE "${NATIVE_TEST_SCHEMA}"."${object.definition.nameSingular}"(${columns.join(',')})`,
+      `CREATE TABLE "${NATIVE_TEST_SCHEMA}"."${object.tableShape.tableName}"(${columns.join(',')})`,
     );
   }
   await database.query(
-    `ALTER TABLE "${NATIVE_TEST_SCHEMA}"."hypertechConsentEvent" ADD FOREIGN KEY ("customerId") REFERENCES "${NATIVE_TEST_SCHEMA}"."hypertechCustomer"(id) ON DELETE RESTRICT`,
+    `ALTER TABLE "${NATIVE_TEST_SCHEMA}"."_hypertechConsentEvent" ADD FOREIGN KEY ("customerId") REFERENCES "${NATIVE_TEST_SCHEMA}"."_hypertechCustomer"(id) ON DELETE RESTRICT`,
   );
 };
 export const buildNativeTestOrm = (database: DataSource) => {

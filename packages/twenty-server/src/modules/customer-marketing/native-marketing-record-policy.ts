@@ -1,3 +1,4 @@
+import { computeTableName } from 'src/engine/utils/compute-table-name.util';
 import { ForbiddenException } from '@nestjs/common';
 import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 import { type ErpCrmRequestPolicy } from 'src/engine/core-modules/auth/erp/erp-crm-request-context';
@@ -80,7 +81,7 @@ export const nativeMarketingPredicate = (
         'Native consent customer relation is missing.',
       );
     }
-    const contact = `${quote(shape.schemaName)}.${quote(CUSTOMER_OBJECT)}`;
+    const contact = `${quote(shape.schemaName)}.${quote(computeTableName(CUSTOMER_OBJECT, true))}`;
     return {
       sql:
         organization +

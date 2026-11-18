@@ -101,7 +101,7 @@ const actor = (): ErpCrmRequestPolicy => {
     });
     beforeEach(async () => {
       await database.query(
-        `TRUNCATE "${NATIVE_TEST_SCHEMA}"."hypertechConsentEvent", "${NATIVE_TEST_SCHEMA}"."hypertechCampaign", "${NATIVE_TEST_SCHEMA}"."hypertechCustomer"`,
+        `TRUNCATE "${NATIVE_TEST_SCHEMA}"."_hypertechConsentEvent", "${NATIVE_TEST_SCHEMA}"."_hypertechCampaign", "${NATIVE_TEST_SCHEMA}"."_hypertechCustomer"`,
       );
     });
     const services = () => {
@@ -177,7 +177,7 @@ const actor = (): ErpCrmRequestPolicy => {
         expect((await read.contacts({})).items).toHaveLength(2);
         expect(
           await database.query(
-            `SELECT count(*)::int AS count FROM "${NATIVE_TEST_SCHEMA}"."hypertechConsentEvent"`,
+            `SELECT count(*)::int AS count FROM "${NATIVE_TEST_SCHEMA}"."_hypertechConsentEvent"`,
           ),
         ).toEqual([{ count: 1 }]);
       });
@@ -219,7 +219,7 @@ const actor = (): ErpCrmRequestPolicy => {
           }),
         ).rejects.toThrow('đã thay đổi');
         await database.query(
-          `ALTER TABLE "${NATIVE_TEST_SCHEMA}"."hypertechConsentEvent" ADD CONSTRAINT reject_test_optout CHECK ("nextState" <> 'UNSUBSCRIBED')`,
+          `ALTER TABLE "${NATIVE_TEST_SCHEMA}"."_hypertechConsentEvent" ADD CONSTRAINT reject_test_optout CHECK ("nextState" <> 'UNSUBSCRIBED')`,
         );
         await expect(
           consent.record(policy, first.key, {
@@ -234,7 +234,7 @@ const actor = (): ErpCrmRequestPolicy => {
         );
         expect((await read.record(policy, first.key)).consentVersion).toBe(1);
         await database.query(
-          `ALTER TABLE "${NATIVE_TEST_SCHEMA}"."hypertechConsentEvent" DROP CONSTRAINT reject_test_optout`,
+          `ALTER TABLE "${NATIVE_TEST_SCHEMA}"."_hypertechConsentEvent" DROP CONSTRAINT reject_test_optout`,
         );
         await consent.record(policy, first.key, {
           state: 'UNSUBSCRIBED',
@@ -279,7 +279,7 @@ const actor = (): ErpCrmRequestPolicy => {
         expect((await read.record(policy, first.key)).consentVersion).toBe(1);
         expect(
           await database.query(
-            `SELECT count(*)::int AS count FROM "${NATIVE_TEST_SCHEMA}"."hypertechConsentEvent"`,
+            `SELECT count(*)::int AS count FROM "${NATIVE_TEST_SCHEMA}"."_hypertechConsentEvent"`,
           ),
         ).toEqual([{ count: 1 }]);
       });
@@ -345,6 +345,16 @@ const actor = (): ErpCrmRequestPolicy => {
       await erpCrmRequestStorage.run({ policy }, () =>
         sync.synchronize(policy, 'proof', null),
       );
+      await erpCrmRequestStorage.run({ policy }, async () => {
+        for (const contact of [first, second]) {
+          await consent.record(policy, contact.key, {
+            state: 'SUBSCRIBED',
+            evidenceAt: '2026-11-17T11:00:00Z',
+            evidenceReference: 'External consent form response 123',
+            expectedVersion: 0,
+          });
+        }
+      });
       policy.customerVisibility = {
         read: { all: false, keys: [first.key] },
         update: { all: false, keys: [] },
@@ -355,6 +365,10 @@ const actor = (): ErpCrmRequestPolicy => {
         expect((await read.contacts({})).items.map((row) => row.email)).toEqual(
           [first.email],
         );
+        const evidence = await services()
+          .orm.getRepository('hypertechConsentEvent')
+          .find({});
+        expect(evidence.map((event) => event.sourceKey)).toEqual([first.key]);
         policy.customerDetailsUpdate = true;
         const editableRecord = await read.record(policy, first.key);
         const write = await services()

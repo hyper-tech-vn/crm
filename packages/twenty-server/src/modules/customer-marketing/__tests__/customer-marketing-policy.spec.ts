@@ -113,7 +113,7 @@ it('scopes evidence through the current native customer rather than snapshot own
     'crm-customer:read',
   );
   expect(result.sql).toContain('EXISTS');
-  expect(result.sql).toContain('"hypertechCustomer"');
+  expect(result.sql).toContain('"_hypertechCustomer"');
   expect(Object.values(result.parameters)).toContainEqual([
     sourceCustomerId(key, workspace),
   ]);
