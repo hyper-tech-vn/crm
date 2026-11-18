@@ -82,6 +82,7 @@ export type MarketingAudience = {
 };
 export type MarketingCapabilities = {
   syncCustomers?: boolean;
+  manageWorkflows?: boolean;
   manageCampaigns: boolean;
   updateConsent: boolean;
   exportCustomers: boolean;

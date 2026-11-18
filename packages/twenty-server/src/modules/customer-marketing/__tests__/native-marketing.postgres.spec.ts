@@ -284,6 +284,57 @@ const actor = (): ErpCrmRequestPolicy => {
         ).toEqual([{ count: 1 }]);
       });
     });
+    it('creates one draft per workflow step under concurrent retries and preserves reviewer edits', async () => {
+      const policy = actor();
+      await erpCrmRequestStorage.run({ policy }, async () => {
+        const { source, sync, campaigns } = services();
+        source.contacts.mockResolvedValue({
+          items: [contact('workflow@example.test')],
+          nextCursor: null,
+          snapshotAt: at,
+        });
+        await sync.synchronize(policy, 'proof', null);
+        const input = {
+          shopId: shop,
+          kind: 'CONSENT_REQUEST' as const,
+          name: 'Invite',
+          subject: 'Subject',
+          bodyText: 'Body',
+          minOrders: 0,
+          maxOrders: null,
+        };
+        const run = '55555555-5555-4555-8555-555555555555';
+        const step = '66666666-6666-4666-8666-666666666666';
+        const results = await Promise.all([
+          campaigns.prepareFromWorkflow(policy, input, run, step),
+          campaigns.prepareFromWorkflow(policy, input, run, step),
+        ]);
+        expect(results[0].id).toBe(results[1].id);
+        expect((await campaigns.list({})).items).toHaveLength(1);
+        await campaigns.save(
+          policy,
+          { ...input, subject: 'Reviewed subject' },
+          results[0].id,
+          1,
+        );
+        const retry = await campaigns.prepareFromWorkflow(
+          policy,
+          input,
+          run,
+          step,
+        );
+        expect(retry.subject).toBe('Reviewed subject');
+        expect(Number(retry.draftVersion)).toBe(2);
+        const revoked = {
+          ...policy,
+          grants: { ...policy.grants, 'crm-campaign:manage': undefined },
+        };
+        await expect(
+          campaigns.prepareFromWorkflow(revoked, input, run, step),
+        ).rejects.toThrow();
+        expect((await campaigns.list({})).items).toHaveLength(1);
+      });
+    });
     it('keeps native draft ownership and optimistic versions independent from customer scope', async () => {
       const policy = actor();
       await erpCrmRequestStorage.run({ policy }, async () => {

@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { v4 as uuidV4 } from 'uuid';
+import { v4 as uuidV4, v5 as uuidV5 } from 'uuid';
 import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { type ErpCrmRequestPolicy } from 'src/engine/core-modules/auth/erp/erp-crm-request-context';
 import { requireErpCapability } from 'src/engine/core-modules/auth/erp/erp-crm-operation-policy';
@@ -152,6 +152,64 @@ export class CustomerMarketingCampaignService {
           throw new NotFoundException();
         }
         return toDraft(saved);
+      }),
+    );
+  }
+  async prepareFromWorkflow(
+    policy: ErpCrmRequestPolicy,
+    input: DraftInput,
+    workflowRunId: string,
+    stepId: string,
+  ) {
+    requireErpCapability(policy, 'crm-campaign:read');
+    requireErpCapability(policy, 'crm-campaign:manage');
+    requireErpCapability(policy, 'crm-customer:read');
+    validateDraft(input);
+    if (!isErpUuid(workflowRunId) || !isErpUuid(stepId)) {
+      throw new BadRequestException('Invalid native workflow run.');
+    }
+    const shop = await this.customers
+      .query()
+      .where({ sourceShopId: input.shopId })
+      .take(1)
+      .getOne<CustomerRecord>();
+    if (!shop) {
+      throw new BadRequestException('Shop nằm ngoài phạm vi được cấp.');
+    }
+    const id = uuidV5(
+      `campaign:${workflowRunId}:${stepId}`,
+      policy.workspaceId,
+    );
+    return marketingMutationStorage.run('SAVE_CAMPAIGN', () =>
+      this.orm.runInWorkspaceTransaction(async (transaction) => {
+        const campaigns =
+          transaction.getRepository<CampaignRecord>(CAMPAIGN_OBJECT);
+        await campaigns.insert(
+          {
+            id,
+            shopId: input.shopId,
+            kind: input.kind,
+            name: input.name.trim(),
+            subject: input.subject.trim(),
+            bodyText: input.bodyText,
+            minOrders: input.minOrders,
+            maxOrders: input.maxOrders,
+            sourceOrganizationId: policy.access.organizationId,
+            createdByErpEmployeeId: policy.access.employeeId,
+            draftVersion: 1,
+          },
+          { onConflictDoNothing: true },
+        );
+        const created = await campaigns.findOne({ where: { id } });
+        if (
+          !created ||
+          created.createdByErpEmployeeId !== policy.access.employeeId
+        ) {
+          throw new ConflictException(
+            'Workflow campaign is outside this actor scope.',
+          );
+        }
+        return created;
       }),
     );
   }

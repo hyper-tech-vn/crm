@@ -108,6 +108,7 @@ export class CustomerMarketingHttpService {
           syncCustomers = false;
         }
         return {
+          manageWorkflows: policy.grants['crm:admin']?.scope === 'ORGANIZATION',
           manageCampaigns:
             !!policy.grants['crm-campaign:read'] &&
             !!policy.grants['crm-campaign:manage'],

@@ -1,13 +1,23 @@
+import { useMarketingResource } from '@/customer-marketing/useMarketingResource';
+import { type MarketingCapabilities } from '@/customer-marketing/marketing-types';
 import { useLocation } from 'react-router-dom';
 import { useLingui } from '@lingui/react/macro';
-import { IconUser, IconFilter, IconMail, IconSettings } from 'twenty-ui/icon';
+import {
+  IconUser,
+  IconFilter,
+  IconMail,
+  IconSettings,
+  IconSettingsAutomation,
+} from 'twenty-ui/icon';
 import { NavigationDrawerItem } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerItem';
 import { NavigationDrawerScrollableContent } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerScrollableContent';
 import { getSettingsPath } from 'twenty-shared/utils';
-import { SettingsPath } from 'twenty-shared/types';
+import { AppPath, SettingsPath } from 'twenty-shared/types';
 export const MarketingNavigation = () => {
   const { t } = useLingui();
   const location = useLocation();
+  const capabilities =
+    useMarketingResource<MarketingCapabilities>('/capabilities');
   return (
     <NavigationDrawerScrollableContent>
       <NavigationDrawerItem
@@ -28,6 +38,14 @@ export const MarketingNavigation = () => {
         to="/marketing/campaigns"
         active={location.pathname.startsWith('/marketing/campaigns')}
       />
+      {capabilities.data?.manageWorkflows && (
+        <NavigationDrawerItem
+          label={t`Quy trình`}
+          Icon={IconSettingsAutomation}
+          to={AppPath.WorkflowIndexPage}
+          active={location.pathname.startsWith(AppPath.WorkflowIndexPage)}
+        />
+      )}
       <NavigationDrawerItem
         label={t`Tài khoản`}
         Icon={IconSettings}
