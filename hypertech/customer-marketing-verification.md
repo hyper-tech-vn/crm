@@ -109,3 +109,34 @@ overflow chips for additional fields; consent SUBSCRIBED filter correctly return
 zero. Native campaign profile resolved authored visibility overrides and showed no
 technical source/shop/employee IDs. Final deployment screenshots/checks recorded
 below when completed.
+
+Release gates: 36 tests in 8 suites passed; direct `tsgo -p
+packages/twenty-front/tsconfig.json --noEmit` passed. Type-aware lint identified
+only static style issues (duplicate imports, braces, naming and prop spreading),
+which were corrected; final focused oxlint reported zero warnings/errors. Lingui
+extract/compile and Vite production build passed. Generated catalogs were restored.
+
+Published runtime source `3e799ae2ca3536a620e0729ae2a459c120d9c3d3`, image
+`hypertech-crm:erp-3e799ae2ca35` (image revision label matches source). Image AppModule
+bootstrap passed before cutover. Coolify desired image, existing PostgreSQL volume
+and ERP/Clerk configuration validated before StartService. Server healthy, worker
+running, both zero restarts. PostgreSQL/Redis healthy; 1431 customers and nine drafts
+preserved after deployment, zero consent events.
+
+Live browser verified legacy `/marketing/customers` redirect to deterministic native
+LIST, native header sync action, populated 390px list and count 1431. Native sync
+opens a routed full-screen panel on mobile and reports page progress without email
+sending. Additional interaction evidence follows.
+
+Live acceptance found a native refetch defect: matching a find-many operation by
+name also resumed skipped pickers with `id.in: []`. Source synchronization completed
+1431 records but the subsequent refresh surfaced a filter error. The shared native
+`useRefetchFindManyRecords` now skips `standby` queries, matching the existing native
+aggregate/workflow refetch pattern. Active query failures still propagate. Two
+regression tests added; 38 tests in nine suites, focused lint and rebuilt frontend
+passed. No backend policy or query validation was relaxed.
+
+Consent panel showed current UNKNOWN and disabled save without evidence. No real
+consent was edited. Native command menu order lookup stayed open in its routed
+panel and rendered the existing ERP order with its Vietnamese status. A fresh
+page load rendered the populated customer profile and protected source fields.
