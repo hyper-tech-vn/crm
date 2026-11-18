@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLingui } from '@lingui/react/macro';
 import { Button, Textarea } from 'twenty-ui/primitives/input';
 import { Heading, Text } from 'twenty-ui/primitives/typography';
@@ -23,18 +23,20 @@ import {
   StyledMarketingPreview,
 } from './MarketingStyles';
 import { MarketingRequestState } from './MarketingRequestState';
-import { MarketingCustomerTable } from './MarketingCustomerTable';
+import { nativeMarketingAudiencePath } from '@/customer-marketing/native-marketing-navigation';
 
 export const MarketingCampaignForm = ({
   draft,
   summary,
   readOnly = false,
   onSaved,
+  nativePanel = false,
 }: {
   draft: MarketingDraft | null;
   summary: MarketingSummary;
   readOnly?: boolean;
   onSaved: () => void;
+  nativePanel?: boolean;
 }) => {
   const { t } = useLingui();
   const navigate = useNavigate();
@@ -75,7 +77,8 @@ export const MarketingCampaignForm = ({
       if (draft) {
         onSaved();
       } else {
-        navigate(`/marketing/campaigns/${saved.id}`, { replace: true });
+        onSaved();
+        navigate(`/object/hypertechCampaign/${saved.id}`, { replace: true });
       }
     } catch (caught: unknown) {
       setError(
@@ -89,7 +92,7 @@ export const MarketingCampaignForm = ({
   };
   return (
     <>
-      <StyledMarketingGrid>
+      <StyledMarketingGrid data-native-panel={nativePanel || undefined}>
         <StyledMarketingForm
           onSubmit={(event) => {
             event.preventDefault();
@@ -130,7 +133,7 @@ export const MarketingCampaignForm = ({
               { value: 'PROMOTION', label: t`Gửi khuyến mãi` },
             ]}
           />
-          <StyledMarketingGrid>
+          <StyledMarketingGrid data-native-panel={nativePanel || undefined}>
             <TextInput
               type="number"
               min={0}
@@ -187,22 +190,24 @@ export const MarketingCampaignForm = ({
             onRetry={() => setError(null)}
           />
         </StyledMarketingForm>
-        <StyledMarketingCard>
-          <Heading>{t`Xem trước nội dung`}</Heading>
-          <Text weight="semibold">{input.subject || t`Chưa có tiêu đề`}</Text>
-          <StyledMarketingPreview>
-            {input.bodyText || t`Nhập nội dung để xem trước.`}
-          </StyledMarketingPreview>
-          <StyledMarketingNote>
-            {input.kind === 'PROMOTION'
-              ? t`Tệp nhận khuyến mãi chỉ gồm khách đã đồng ý.`
-              : t`Tệp xin consent chỉ gồm khách chưa được hỏi; khách đang chờ trả lời, từ chối hoặc đã hủy đăng ký được loại ra.`}
-          </StyledMarketingNote>
-          <Text>{t`Trạng thái: Bản nháp`}</Text>
-        </StyledMarketingCard>
+        {!nativePanel && (
+          <StyledMarketingCard>
+            <Heading>{t`Xem trước nội dung`}</Heading>
+            <Text weight="semibold">{input.subject || t`Chưa có tiêu đề`}</Text>
+            <StyledMarketingPreview>
+              {input.bodyText || t`Nhập nội dung để xem trước.`}
+            </StyledMarketingPreview>
+            <StyledMarketingNote>
+              {input.kind === 'PROMOTION'
+                ? t`Tệp nhận khuyến mãi chỉ gồm khách đã đồng ý.`
+                : t`Tệp xin consent chỉ gồm khách chưa được hỏi; khách đang chờ trả lời, từ chối hoặc đã hủy đăng ký được loại ra.`}
+            </StyledMarketingNote>
+            <Text>{t`Trạng thái: Bản nháp`}</Text>
+          </StyledMarketingCard>
+        )}
       </StyledMarketingGrid>
       {draft && (
-        <StyledMarketingCard>
+        <StyledMarketingCard data-native-panel={nativePanel || undefined}>
           <Heading>{t`Tệp khách của bản đã lưu`}</Heading>
           <MarketingRequestState
             loading={audience.loading}
@@ -221,8 +226,11 @@ export const MarketingCampaignForm = ({
                 {t`Chưa có đơn mua hợp lệ`}: {audience.data.withoutPurchase} ·{' '}
                 {t`Email cần kiểm tra`}: {audience.data.invalidEmails}
               </StyledMarketingNote>
-              <MarketingCustomerTable items={audience.data.sample.items} />
-              <StyledMarketingNote>{t`Hiển thị tối đa 20 khách để kiểm tra. Thay đổi bộ lọc cần lưu trước khi xem lại tệp.`}</StyledMarketingNote>
+              <Button
+                render={<Link to={nativeMarketingAudiencePath(draft)} />}
+                nativeButton={false}
+              >{t`Xem tệp khách trong Twenty`}</Button>
+              <StyledMarketingNote>{t`Mở danh sách khách trong Twenty với bộ lọc của chiến dịch. Lưu thay đổi trước khi xem lại tệp.`}</StyledMarketingNote>
             </>
           )}
         </StyledMarketingCard>

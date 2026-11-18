@@ -1,9 +1,10 @@
 import { isLegacyCrmTemplatePath } from '@/customer-marketing/marketing-navigation';
-it.each(['/object/person/example', '/home', '/getting-started?step=1'])(
+it.each(['/object/person/example', '/getting-started?step=1'])(
   'recognizes deprecated template path %s',
   (path) => expect(isLegacyCrmTemplatePath(path)).toBe(true),
 );
 it.each([
+  '/home',
   '/objects/companies',
   '/object/company/example',
   '/marketing/customers',

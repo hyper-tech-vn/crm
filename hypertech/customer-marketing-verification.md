@@ -70,3 +70,42 @@ The existing Company API created one real Hypertech record, domain `hyper-tech.v
 Nine draft campaigns and nine active native workflows remain. Three first-purchase workflows publish new versions through the native lifecycle; old run/version history is preserved. Their existing campaign drafts are updated with optimistic versions to minimum1/maximum1 purchase, while repeat cohorts begin at2. The three consent-request cohorts still target UNKNOWN contacts with minimum0. Read-only live assertions confirm the active definitions and nine drafts have these distinct ranges. The browser verified the JanyCreative first-purchase draft at1..1,996 matched contacts and0 eligible promotional recipients. Nothing is sent and no consent evidence is invented. Source synchronization and workflow triggering remain manual.
 
 Production evidence/screenshots are in `output/crm-marketing-expansion-20261118` in the shared task workspace. Private before snapshots remain on the execution host under the existing restricted operator backup directory. A UI rollback can restore the previous `0a1254362fef` image while preserving the added company, customers and draft/version history; it would hide Company navigation again. Do not restore the older whole database over the newly imported customers.
+
+## Native Twenty UI correction — 2026-11-18
+
+Authoritative direction: use Twenty's existing UI. The supplied phone image is the
+rejected custom page, not the target design. Native record index/list/table/profile,
+view picker, filters, sorting, command menu and routed side panel own presentation.
+No new ERP bounded module, application role or backend authorization rule is added.
+
+| Region/capability | Native owner | Preserved behavior |
+| --- | --- | --- |
+| Customers/segments | RecordIndexContainer, LIST/TABLE, native saved views | ERP row scope; search/filter/sort/selection; native profiles |
+| Campaigns | Native campaign record index/profile | Nine existing drafts; versioned scoped saves |
+| Customer profile | Native page layout and fields widget | Editable notes/name; protected source/consent fields |
+| Campaign profile | Native fields widget visibility overrides | Business fields visible; technical IDs hidden |
+| Operations | PageCardLayout/RecordShowPageHeader/command menu | Sync/export, consent evidence, ERP orders, draft editor |
+| Mobile navigation | Native MobileHomePage/drawer items/bottom bar | Reachable customers, campaigns, company, account and permitted workflows |
+| Legacy URLs | Native record/index redirects | Source-key customer bookmark resolves to the same native UUID |
+
+Palette: no new brand or neutral palette. All surfaces, text, borders, spacing and
+icons inherit Twenty theme tokens/native components in both themes. No bitmap
+mockup was generated. Native controls remain keyboard accessible; narrowed headers
+use short visible labels with the full accessible name.
+
+Database restore test before metadata configuration: SHA256
+`2cbf590a9b36cd3f968ae84c434ab67fcf86bfc24c61c0441029fe68e9fc460c`,
+restored workspace/user/contact counts `1|1|1423`. Configuration uses native
+ViewService/ViewFieldService/ViewFilterService with fresh ERP administrator scope.
+Eight deterministic workspace views verified. Latest authorized ERP sync produced
+1431 customers; consent events remained zero and existing campaign drafts nine.
+Workflow activation/history and real consent were not modified by view configuration.
+
+Local behavior tests: legacy record routing, audience consent/shop/purchase query
+filters, denied/allowed ERP capabilities and native side-panel navigation. Existing
+campaign validation/version conflicts, request abort/error, CSV formula protection
+and API tests retained. Native mobile LIST observed at 390px and 320px, with native
+overflow chips for additional fields; consent SUBSCRIBED filter correctly returned
+zero. Native campaign profile resolved authored visibility overrides and showed no
+technical source/shop/employee IDs. Final deployment screenshots/checks recorded
+below when completed.

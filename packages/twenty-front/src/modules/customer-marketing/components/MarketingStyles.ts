@@ -35,6 +35,10 @@ export const StyledMarketingStats = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 `;
 export const StyledMarketingCard = styled.section`
+  &[data-native-panel] {
+    border: 0;
+    padding: 0;
+  }
   border: 1px solid ${themeCssVariables.border.color.light};
   border-radius: ${themeCssVariables.border.radius.md};
   display: flex;
@@ -44,6 +48,9 @@ export const StyledMarketingCard = styled.section`
   padding: ${themeCssVariables.spacing[4]};
 `;
 export const StyledMarketingGrid = styled.div`
+  &[data-native-panel] {
+    grid-template-columns: minmax(0, 1fr);
+  }
   display: grid;
   gap: ${themeCssVariables.spacing[5]};
   grid-template-columns: repeat(2, minmax(0, 1fr));

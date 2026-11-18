@@ -1,3 +1,4 @@
+import { useNativeMarketingActions } from '@/customer-marketing/useNativeMarketingActions';
 import { CommandMenuContext } from '@/command-menu-item/contexts/CommandMenuContext';
 import { useIsLogConsoleAllowed } from '@/log-console/hooks/useIsLogConsoleAllowed';
 import { logConsoleDisplayModeState } from '@/log-console/states/logConsoleDisplayModeState';
@@ -22,7 +23,16 @@ export const useCommandMenuAppActions = () => {
   const { t } = useLingui();
   const isMobile = useIsMobile();
   const isSettingsDrawer = useIsSettingsDrawer();
-  const { isInPreviewMode } = useContext(CommandMenuContext);
+  const { isInPreviewMode, commandMenuContextApi } =
+    useContext(CommandMenuContext);
+  const selectedRecord =
+    commandMenuContextApi.selectedRecords.length === 1
+      ? commandMenuContextApi.selectedRecords[0]
+      : undefined;
+  const marketingActions = useNativeMarketingActions(
+    String(commandMenuContextApi.objectMetadataItem.nameSingular ?? ''),
+    selectedRecord?.id,
+  );
   const sidePanelSearch = useAtomStateValue(sidePanelSearchState);
   const { isNavigationDrawerExpanded, toggleNavigationDrawer } =
     useToggleNavigationDrawer();
@@ -45,6 +55,7 @@ export const useCommandMenuAppActions = () => {
   };
 
   const appActions = [
+    ...marketingActions,
     {
       id: 'toggle-navigation-drawer',
       section: 'WORKSPACE',

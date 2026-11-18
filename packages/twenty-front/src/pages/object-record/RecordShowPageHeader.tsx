@@ -1,3 +1,4 @@
+import { NativeMarketingRecordActions } from '@/customer-marketing/components/NativeMarketingRecordActions';
 import { MessageThreadSidePanelTitle } from '@/activities/emails/components/MessageThreadSidePanelTitle';
 import { getObjectMetadataIdentifierFields } from '@/object-metadata/utils/getObjectMetadataIdentifierFields';
 import { ObjectRecordShowPageBreadcrumb } from '@/object-record/record-show/components/ObjectRecordShowPageBreadcrumb';
@@ -57,7 +58,15 @@ const RecordShowPageMainHeader = ({
             {titleAccessory}
           </>
         }
-        actionButton={children}
+        actionButton={
+          <>
+            <NativeMarketingRecordActions
+              objectName={objectNameSingular}
+              recordId={objectRecordId}
+            />
+            {children}
+          </>
+        }
       />
     );
   }
@@ -72,7 +81,15 @@ const RecordShowPageMainHeader = ({
           labelIdentifierFieldMetadataItem={labelIdentifierFieldMetadataItem}
         />
       }
-      actionButton={children}
+      actionButton={
+        <>
+          <NativeMarketingRecordActions
+            objectName={objectNameSingular}
+            recordId={objectRecordId}
+          />
+          {children}
+        </>
+      }
     />
   );
 };
@@ -94,6 +111,12 @@ const RecordShowPagePanelHeader = ({
 
   return (
     <PageCardHeader
+      actionButton={
+        <NativeMarketingRecordActions
+          objectName={objectNameSingular}
+          recordId={objectRecordId}
+        />
+      }
       title={
         <>
           {objectNameSingular === StandardObjectNameSingular.MessageThread ? (

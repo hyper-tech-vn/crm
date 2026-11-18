@@ -1,3 +1,6 @@
+import { MarketingNavigation } from '@/customer-marketing/components/MarketingNavigation';
+import { authProvidersState } from '@/client-config/states/authProvidersState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { GettingStartedSidebarCard } from '@/getting-started/components/GettingStartedSidebarCard';
 import { MobileHomeInboxSection } from '@/inbox/components/MobileHomeInboxSection';
 import { MainNavigationDrawerNavigationContent } from '@/navigation/components/MainNavigationDrawerNavigationContent';
@@ -30,6 +33,7 @@ const StyledSections = styled.div`
 `;
 
 export const MobileHomePage = () => {
+  const isHypertech = useAtomStateValue(authProvidersState).clerk;
   const isMobile = useIsMobile();
   const { defaultHomePagePath } = useDefaultHomePagePath();
   const hasAiPermission = useHasPermissionFlag(PermissionFlagType.AI);
@@ -47,9 +51,13 @@ export const MobileHomePage = () => {
 
       <NavigationDrawerScrollableContent>
         <StyledSections>
-          <MainNavigationDrawerNavigationContent />
-          <GettingStartedSidebarCard />
-          {hasAiPermission && <MobileHomeInboxSection />}
+          {isHypertech ? (
+            <MarketingNavigation />
+          ) : (
+            <MainNavigationDrawerNavigationContent />
+          )}
+          {!isHypertech && <GettingStartedSidebarCard />}
+          {!isHypertech && hasAiPermission && <MobileHomeInboxSection />}
         </StyledSections>
       </NavigationDrawerScrollableContent>
     </StyledContainer>

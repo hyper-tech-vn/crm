@@ -45,3 +45,23 @@ A draft ID derives from workspace/run/step. Concurrent retries insert once and r
 The real Hypertech company uses the existing native Company object and is visible through the native company list/profile. Legacy demo people/opportunities remain hidden; company routes are now available. Customer imports still use the existing Twenty customer object per ERP shop/email key and preserve CRM notes and consent. No buyer is assigned to Hypertech as their employer.
 
 `expand-marketing.cjs` runs an explicitly authorized, bounded import using fresh existing administrator authentication and current ERP decisions per page. It creates only the real Hypertech company (name/domain from the user's existing company context) and refines the three first-purchase workflows/drafts to exactly one purchase. Repeat-purchase cohorts start at two; promotion eligibility still requires SUBSCRIBED. It preserves existing native run history and publishes new workflow versions through the vendor lifecycle, never rewrites active versions or user-authored draft content. The operation saves scoped before snapshots and refuses ambiguous/edited definitions. No consent or outbound email is fabricated.
+
+### Native Twenty navigation (2026-11-18)
+
+Customer and campaign indexes now use Twenty's native record list/table, view picker,
+filters, sorting, selection and record profiles. `/marketing/*` bookmarks redirect to
+native indexes/records. Mobile Home uses native drawer items. No parallel customer,
+segment or campaign listing is mounted.
+
+ERP synchronization, shop export, consent evidence, order lookup and draft editing
+open routed native side panels from the record header or command menu. All existing
+BFF authorization, consent evidence/version checks and draft optimistic concurrency
+remain in force. Native generic writes to protected source/consent/campaign fields
+remain blocked. Nothing sends email.
+
+`hypertech/configure-native-marketing-views.cjs` configures native workspace views
+through ViewService/ViewFieldService/ViewFilterService after fresh ERP organization
+admin authorization. It creates deterministic list/table views and consent/purchase
+segments without changing customer records or SDK application permissions. Run only
+with the private operation mount after a verified database restore point. User-edited
+view identities are preserved; no seed data is created.
