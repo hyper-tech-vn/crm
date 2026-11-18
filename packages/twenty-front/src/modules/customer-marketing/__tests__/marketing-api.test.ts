@@ -1,3 +1,4 @@
+import { SESSION_COOKIE_OPT_IN_HEADER_NAME } from 'twenty-shared/constants';
 import {
   marketingRequest,
   MarketingApiError,
@@ -18,6 +19,9 @@ it('uses only the native cookie-authenticated BFF and never accepts a Clerk toke
     /\/auth\/erp-marketing\/customers$/,
   );
   expect(fetchMock.mock.calls[0][1].credentials).toBe('include');
+  expect(
+    fetchMock.mock.calls[0][1].headers[SESSION_COOKIE_OPT_IN_HEADER_NAME],
+  ).toBe('1');
   expect(fetchMock.mock.calls[0][1].headers.Authorization).toBeUndefined();
 });
 it('sends consent evidence as JSON with its optimistic version', async () => {

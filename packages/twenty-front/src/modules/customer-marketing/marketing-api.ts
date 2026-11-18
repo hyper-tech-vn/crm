@@ -1,3 +1,4 @@
+import { SESSION_COOKIE_OPT_IN_HEADER_NAME } from 'twenty-shared/constants';
 import { t } from '@lingui/core/macro';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
 
@@ -25,6 +26,7 @@ export const marketingRequest = async <TResult>(
       signal: options.signal,
       headers: {
         Accept: 'application/json',
+        [SESSION_COOKIE_OPT_IN_HEADER_NAME]: '1',
         ...(options.body ? { 'Content-Type': 'application/json' } : {}),
       },
       ...(options.body ? { body: JSON.stringify(options.body) } : {}),
