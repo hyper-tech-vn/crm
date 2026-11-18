@@ -259,6 +259,34 @@ async function main() {
                 name,
               };
             }
+            const [published] = await app
+              .get(DataSource)
+              .query(
+                'SELECT steps, triggers, "applicationId" FROM core."workflowVersion" WHERE "workspaceId"=$1 AND id=$2',
+                [workspaceId, entry.versionId],
+              );
+            const action = published?.steps?.[0];
+            const record = action?.settings?.input?.objectRecord;
+            if (
+              published?.applicationId !==
+                auth.workspace.workspaceCustomApplicationId ||
+              published?.triggers?.length !== 1 ||
+              published.triggers[0].type !== 'MANUAL' ||
+              published?.steps?.length !== 1 ||
+              action.type !== 'CREATE_RECORD' ||
+              action.settings.input.objectName !== 'hypertechCampaign' ||
+              record?.shopId !== shop.id ||
+              record?.kind !== cohort.kind ||
+              record?.minOrders !== cohort.minimum ||
+              record?.maxOrders !== null ||
+              record?.name !== name ||
+              record?.subject !== cohort.subject ||
+              record?.bodyText !== cohort.body ||
+              action.nextStepIds?.length
+            )
+              throw Error(
+                'Existing workflow content changed; review it in Twenty before running',
+              );
             result.push(entry);
           }
         }
