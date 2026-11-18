@@ -159,7 +159,8 @@ async function main() {
               name: 'Hypertech',
               domainName: {
                 primaryLinkUrl: 'https://hyper-tech.vn',
-                secondaryLinkUrls: [],
+                primaryLinkLabel: 'Hypertech',
+                secondaryLinks: [],
               },
               accountOwnerId: policy.workspaceMemberId,
             },
