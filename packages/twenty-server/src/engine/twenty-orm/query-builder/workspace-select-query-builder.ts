@@ -1,3 +1,4 @@
+import { applyErpCrmReadPolicy } from 'src/engine/core-modules/auth/erp/erp-crm-record-policy';
 import { type QueryConfig, types } from 'pg';
 import { type FeatureFlagKey } from 'twenty-shared/types';
 import { isDefined, pascalCase } from 'twenty-shared/utils';
@@ -214,7 +215,7 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
       this.setParameters(parameters);
     }
 
-    if (condition.length > 0) {
+    if (condition.length > 0 && !this.rowAccessConditions.includes(condition)) {
       this.rowAccessConditions.push(condition);
     }
 
@@ -738,12 +739,18 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
       (candidate) => candidate.alias === alias,
     );
 
-    if (isDefined(joinClause)) {
+    if (
+      isDefined(joinClause) &&
+      !joinClause.additionalOnConditions.includes(condition)
+    ) {
       joinClause.additionalOnConditions.push(condition);
     }
 
     for (const existsFilterClause of this.existsFilterClauses) {
-      if (existsFilterClause.alias === alias) {
+      if (
+        existsFilterClause.alias === alias &&
+        !existsFilterClause.additionalOnConditions.includes(condition)
+      ) {
         existsFilterClause.additionalOnConditions.push(condition);
       }
     }
@@ -1306,6 +1313,7 @@ export class WorkspaceSelectQueryBuilder implements WhereExpressionLike {
   private toSelectStatementState(options?: {
     allowPlainToManyJoins?: boolean;
   }): SelectStatementState {
+    applyErpCrmReadPolicy(this);
     return {
       alias: this.alias,
       tableShape: this.tableShape,

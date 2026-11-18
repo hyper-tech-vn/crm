@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { isNonEmptyString } from '@sniptt/guards';
+import { isClerkAuthEnabled } from 'src/engine/core-modules/auth/clerk/clerk-enabled';
 import { isDefined } from 'twenty-shared/utils';
 
 import { readIsCompanyEnrichmentEnabled } from 'src/engine/core-modules/company-enrichment/utils/read-is-company-enrichment-enabled.util';
@@ -183,6 +184,7 @@ export class ClientConfigService {
     );
 
     const clientConfig: ClientConfig = {
+      isClerkAuthEnabled: isClerkAuthEnabled(),
       appVersion: this.twentyConfigService.get('APP_VERSION'),
       billing: {
         isBillingEnabled,

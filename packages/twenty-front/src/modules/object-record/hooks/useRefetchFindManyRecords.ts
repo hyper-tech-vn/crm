@@ -15,6 +15,8 @@ export const useRefetchFindManyRecords = ({
 
     await apolloCoreClient.refetchQueries({
       include: [findManyRecordsQueryName],
+      // Named refetch also selects skipped pickers with empty ID filters.
+      onQueryUpdated: (query) => query.options.fetchPolicy !== 'standby',
     });
   };
 

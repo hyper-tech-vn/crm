@@ -158,7 +158,6 @@ export const SignInUp = () => {
     if (isDefaultDomain && isMultiWorkspaceEnabled) {
       return (
         <>
-          <SignInUpSsoExchangeTokenEffect />
           <SignInUpGlobalScopeFormEffect />
           <SignInUpGlobalScopeForm />
         </>
@@ -195,7 +194,6 @@ export const SignInUp = () => {
 
     return (
       <>
-        <SignInUpSsoExchangeTokenEffect />
         <SignInUpGlobalScopeFormEffect />
         <SignInUpGlobalScopeForm />
       </>
@@ -210,27 +208,37 @@ export const SignInUp = () => {
     workspacePublicData,
   ]);
 
-  return signInUpStep === SignInUpStep.WorkspaceCreation ? (
-    <OnboardingLayout
-      onBack={!isCreatingWorkspace ? onBackFromWorkspaceCreation : undefined}
-    >
-      <StyledOnboardingStepPage>{signInUpForm}</StyledOnboardingStepPage>
-    </OnboardingLayout>
-  ) : (
-    <StyledBackground>
-      {signInUpStep === SignInUpStep.EmailVerification ? (
-        <StyledAuthContent>
-          <EmailVerificationSent email={searchParams.get('email')} />
-        </StyledAuthContent>
-      ) : (
-        <SignInUpStandardContent
-          workspacePublicData={workspacePublicData}
-          signInUpForm={signInUpForm}
-          signInUpStep={signInUpStep}
-          title={title}
-          onClickOnLogo={onClickOnLogo}
-        />
-      )}
-    </StyledBackground>
+  const content =
+    signInUpStep === SignInUpStep.WorkspaceCreation ? (
+      <OnboardingLayout
+        onBack={!isCreatingWorkspace ? onBackFromWorkspaceCreation : undefined}
+      >
+        <StyledOnboardingStepPage>{signInUpForm}</StyledOnboardingStepPage>
+      </OnboardingLayout>
+    ) : (
+      <StyledBackground>
+        {signInUpStep === SignInUpStep.EmailVerification ? (
+          <StyledAuthContent>
+            <EmailVerificationSent email={searchParams.get('email')} />
+          </StyledAuthContent>
+        ) : (
+          <SignInUpStandardContent
+            workspacePublicData={workspacePublicData}
+            signInUpForm={signInUpForm}
+            signInUpStep={signInUpStep}
+            title={title}
+            onClickOnLogo={onClickOnLogo}
+          />
+        )}
+      </StyledBackground>
+    );
+
+  return (
+    <>
+      <SignInUpSsoExchangeTokenEffect
+        enabled={clientConfigApiStatus.isLoadedOnce}
+      />
+      {content}
+    </>
   );
 };

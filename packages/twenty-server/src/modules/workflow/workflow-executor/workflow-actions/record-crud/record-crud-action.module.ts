@@ -1,3 +1,7 @@
+import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
+import { CustomerMarketingWorkflowService } from 'src/modules/customer-marketing/customer-marketing-workflow.service';
+import { CustomerMarketingCampaignService } from 'src/modules/customer-marketing/customer-marketing-campaign.service';
+import { CustomerMarketingReadService } from 'src/modules/customer-marketing/customer-marketing-read.service';
 import { Module } from '@nestjs/common';
 
 import { RecordCrudModule } from 'src/engine/core-modules/record-crud/record-crud.module';
@@ -12,11 +16,15 @@ import { UpsertRecordWorkflowAction } from 'src/modules/workflow/workflow-execut
 
 @Module({
   imports: [
+    TokenModule,
     WorkflowExecutionContextModule,
     RecordCrudModule,
     WorkflowCommonModule,
   ],
   providers: [
+    CustomerMarketingWorkflowService,
+    CustomerMarketingCampaignService,
+    CustomerMarketingReadService,
     CreateRecordWorkflowAction,
     UpsertRecordWorkflowAction,
     UpdateRecordWorkflowAction,

@@ -1,3 +1,12 @@
+import { ErpMarketingController } from './erp/erp-marketing.controller';
+import { CustomerMarketingHttpService } from 'src/modules/customer-marketing/customer-marketing-http.service';
+import { CustomerMarketingReadService } from 'src/modules/customer-marketing/customer-marketing-read.service';
+import { CustomerMarketingConsentService } from 'src/modules/customer-marketing/customer-marketing-consent.service';
+import { CustomerMarketingSyncService } from 'src/modules/customer-marketing/customer-marketing-sync.service';
+import { CustomerMarketingCampaignService } from 'src/modules/customer-marketing/customer-marketing-campaign.service';
+import { ErpCrmLoginWorkspaceService } from './erp/erp-crm-login.workspace-service';
+import { RoleModule } from 'src/engine/metadata-modules/role/role.module';
+import { RoleAssignmentModule } from 'src/engine/permissions/role-assignment/role-assignment.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -64,6 +73,7 @@ import { ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-ac
 import { ConnectedAccountTokenEncryptionModule } from 'src/engine/metadata-modules/connected-account/services/connected-account-token-encryption.module';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
 import { PermissionsModule } from 'src/engine/permissions/permissions.module';
+import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
 import { CalendarCommonModule } from 'src/modules/calendar/common/calendar-common.module';
 import { ConnectedAccountModule } from 'src/modules/connected-account/connected-account.module';
@@ -75,9 +85,14 @@ import { MessagingFolderSyncManagerModule } from 'src/modules/messaging/message-
 import { AuthResolver } from './auth.resolver';
 
 import { AuthService } from './services/auth.service';
+import { ClerkAuthController } from './clerk/clerk-auth.controller';
+import { ClerkOidcService } from './clerk/clerk-oidc.service';
+import { ClerkPasswordAuthDisabledGuard } from './clerk/clerk-password-auth-disabled.guard';
 
 @Module({
   imports: [
+    RoleModule,
+    RoleAssignmentModule,
     JwtModule,
     WorkspaceDomainsModule,
     TokenModule,
@@ -119,6 +134,7 @@ import { AuthService } from './services/auth.service';
     ConnectionProviderModule,
     ApplicationConnectionsModule,
     WorkspaceCacheModule,
+    WorkspaceCacheStorageModule,
     SecureHttpClientModule,
     EnterpriseModule,
     BillingModule,
@@ -128,6 +144,8 @@ import { AuthService } from './services/auth.service';
     UserSessionModule,
   ],
   controllers: [
+    ErpMarketingController,
+    ClerkAuthController,
     GoogleAuthController,
     MicrosoftAuthController,
     GoogleAPIsAuthController,
@@ -138,6 +156,14 @@ import { AuthService } from './services/auth.service';
     ConnectionProviderCustomController,
   ],
   providers: [
+    CustomerMarketingHttpService,
+    CustomerMarketingReadService,
+    CustomerMarketingConsentService,
+    CustomerMarketingSyncService,
+    CustomerMarketingCampaignService,
+    ErpCrmLoginWorkspaceService,
+    ClerkOidcService,
+    ClerkPasswordAuthDisabledGuard,
     SignInUpService,
     ConnectionProviderFlowRedirectService,
     AuthService,

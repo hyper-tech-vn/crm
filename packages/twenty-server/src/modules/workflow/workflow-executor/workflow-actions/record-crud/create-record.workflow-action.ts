@@ -1,3 +1,9 @@
+import { CustomerMarketingWorkflowService } from 'src/modules/customer-marketing/customer-marketing-workflow.service';
+import {
+  CAMPAIGN_OBJECT,
+  type DraftInput,
+} from 'src/modules/customer-marketing/customer-marketing.types';
+import { erpCrmEnabled } from 'src/engine/core-modules/auth/erp/erp-crm-config';
 import { Injectable } from '@nestjs/common';
 
 import { resolveInput } from 'twenty-shared/utils';
@@ -23,6 +29,7 @@ export class CreateRecordWorkflowAction implements WorkflowAction {
     private readonly createRecordService: CreateRecordService,
     private readonly workflowExecutionContextService: WorkflowExecutionContextService,
     private readonly workflowCommonWorkspaceService: WorkflowCommonWorkspaceService,
+    private readonly customerMarketingWorkflowService: CustomerMarketingWorkflowService,
   ) {}
 
   async execute({
@@ -62,6 +69,19 @@ export class CreateRecordWorkflowAction implements WorkflowAction {
       inputWithRichText,
       context,
     ) as WorkflowCreateRecordActionInput;
+
+    if (erpCrmEnabled() && workflowActionInput.objectName === CAMPAIGN_OBJECT) {
+      const execution =
+        await this.workflowExecutionContextService.getExecutionContext(runInfo);
+      return {
+        result: await this.customerMarketingWorkflowService.prepare(
+          execution,
+          runInfo,
+          currentStepId,
+          workflowActionInput.objectRecord as unknown as DraftInput,
+        ),
+      };
+    }
 
     const { formattedRecord: formattedObjectRecord } =
       formatWorkflowRecordRelationFields(

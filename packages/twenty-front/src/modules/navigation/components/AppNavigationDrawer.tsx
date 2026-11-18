@@ -1,3 +1,6 @@
+import { MarketingNavigation } from '@/customer-marketing/components/MarketingNavigation';
+import { authProvidersState } from '@/client-config/states/authProvidersState';
+import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { GettingStartedSidebarCard } from '@/getting-started/components/GettingStartedSidebarCard';
 import { useIsSettingsDrawer } from '@/navigation/hooks/useIsSettingsDrawer';
 
@@ -18,6 +21,7 @@ export const AppNavigationDrawer = ({
   className,
 }: AppNavigationDrawerProps) => {
   const isMobile = useIsMobile();
+  const isHypertech = useAtomStateValue(authProvidersState).clerk;
   const isSettingsDrawer = useIsSettingsDrawer();
 
   // The main navigation is the home page on mobile, not a drawer.
@@ -28,7 +32,7 @@ export const AppNavigationDrawer = ({
   return (
     <NavigationDrawer className={className} header={<NavigationDrawerHeader />}>
       {/* Mobile switches modes from the bottom navigation bar instead. */}
-      {!isMobile && (
+      {!isMobile && !isHypertech && (
         <NavigationDrawerFixedContent>
           <MainNavigationDrawerModeSwitcher />
         </NavigationDrawerFixedContent>
@@ -37,11 +41,13 @@ export const AppNavigationDrawer = ({
       <NavigationDrawerModeTransition>
         {isSettingsDrawer ? (
           <SettingsNavigationDrawerContent />
+        ) : isHypertech ? (
+          <MarketingNavigation />
         ) : (
           <MainNavigationDrawerContent />
         )}
       </NavigationDrawerModeTransition>
-      {!isSettingsDrawer && <GettingStartedSidebarCard />}
+      {!isSettingsDrawer && !isHypertech && <GettingStartedSidebarCard />}
     </NavigationDrawer>
   );
 };

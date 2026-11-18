@@ -1,7 +1,9 @@
 import { type AuthProviders } from '~/generated-metadata/graphql';
 import { createAtomState } from '@/ui/utilities/state/jotai/utils/createAtomState';
 
-export const authProvidersState = createAtomState<AuthProviders>({
+export const authProvidersState = createAtomState<
+  AuthProviders & { clerk?: boolean }
+>({
   key: 'authProvidersState',
   defaultValue: {
     google: true,

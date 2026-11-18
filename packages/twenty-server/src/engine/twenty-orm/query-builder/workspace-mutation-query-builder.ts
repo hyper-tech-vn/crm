@@ -1,3 +1,9 @@
+import { erpCrmRequestStorage } from 'src/engine/core-modules/auth/erp/erp-crm-request-context';
+import { ForbiddenException } from '@nestjs/common';
+import {
+  erpRecordPredicate,
+  requireErpCrmWrite,
+} from 'src/engine/core-modules/auth/erp/erp-crm-record-policy';
 import { isDefined } from 'twenty-shared/utils';
 
 import {
@@ -119,6 +125,48 @@ export class WorkspaceMutationQueryBuilder {
     sql: string;
     parameters: Record<string, unknown>;
   } {
+    const action =
+      this.kind === 'update' || this.kind === 'restore' ? 'update' : 'delete';
+    const erpWrite = requireErpCrmWrite(this.tableShape, action, [
+      this.setRecord,
+    ]);
+    if (
+      erpWrite &&
+      ['person', 'opportunity'].includes(this.tableShape.nameSingular) &&
+      'companyId' in this.setRecord &&
+      erpWrite.policy.grants[erpWrite.capability]?.scope !== 'ORGANIZATION' &&
+      !erpCrmRequestStorage
+        .getStore()
+        ?.verifiedCompanyIds?.has(String(this.setRecord.companyId))
+    ) {
+      throw new ForbiddenException(
+        'CRM company changes must use the checked repository transaction.',
+      );
+    }
+    if (erpWrite && erpWrite.capability !== 'crm:admin') {
+      for (const capability of [
+        erpWrite.capability === 'crm:access'
+          ? 'crm:access'
+          : 'crm-customer:read',
+        erpWrite.capability,
+      ] as const) {
+        const read =
+          capability === 'crm-customer:read' &&
+          erpWrite.capability.startsWith('crm-campaign:')
+            ? 'crm-campaign:read'
+            : capability;
+        const predicate = erpRecordPredicate(
+          erpWrite.policy,
+          this.tableShape,
+          this.alias,
+          read,
+        );
+        if (!this.rowAccessConditions.includes(predicate.sql)) {
+          this.rowAccessConditions.push(predicate.sql);
+        }
+        this.parameters = { ...this.parameters, ...predicate.parameters };
+      }
+    }
     const parameters = { ...this.parameters };
     const setClauses = this.buildSetClauses(parameters);
 

@@ -1,3 +1,4 @@
+import { ErpCrmRequestMiddleware } from 'src/engine/core-modules/auth/erp/erp-crm-request.middleware';
 import { Module } from '@nestjs/common';
 
 import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
@@ -18,6 +19,7 @@ import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/
     UserSessionModule,
   ],
   providers: [
+    ErpCrmRequestMiddleware,
     MiddlewareService,
     CookieSessionCsrfMiddleware,
     ApiAccessLogMiddleware,

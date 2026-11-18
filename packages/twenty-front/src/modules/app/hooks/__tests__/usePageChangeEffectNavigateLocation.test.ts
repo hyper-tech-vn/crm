@@ -145,9 +145,11 @@ const setupMockState = (
   isBillingEnabled: boolean = true,
   isMinimalMetadataReady: boolean = true,
   isOnboardingCheckoutPending: boolean = false,
+  isHypertech: boolean = false,
 ) => {
   jest
     .mocked(useAtomStateValue)
+    .mockReturnValueOnce({ clerk: isHypertech })
     .mockReturnValueOnce(currentWorkspace)
     .mockReturnValueOnce({ isBillingEnabled })
     .mockReturnValueOnce([{ namePlural: objectNamePlural ?? '' }])
@@ -644,5 +646,35 @@ describe('usePageChangeEffectNavigateLocation — suspended workspace settings p
     setupMockState();
 
     expect(usePageChangeEffectNavigateLocation()).toEqual(res);
+  });
+});
+
+describe('Hypertech customer marketing landing', () => {
+  it('ignores B2B getting-started redirects after an authenticated Hypertech sign-in', () => {
+    setupMockIsMatchingLocation(AppPath.SignInUp);
+    setupMockOnboardingStatus(OnboardingStatus.COMPLETED);
+    setupMockIsWorkspaceActivationStatusEqualsTo(false);
+    setupMockIsLogged(true);
+    setupMockIsOnAWorkspace(true);
+    setupMockUseQuery();
+    setupMockUseLocation({ loc: AppPath.SignInUp });
+    setupMockShouldOpenGettingStarted({
+      shouldOpenGettingStarted: true,
+      isLoading: true,
+    });
+    jest
+      .mocked(useDefaultHomePagePath)
+      .mockReturnValueOnce({ defaultHomePagePath: '/marketing/customers' });
+    setupMockState(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true,
+      true,
+      false,
+      true,
+    );
+    expect(usePageChangeEffectNavigateLocation()).toBe('/marketing/customers');
   });
 });

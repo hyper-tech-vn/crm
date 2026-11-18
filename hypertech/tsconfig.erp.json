@@ -1,0 +1,12 @@
+{
+  "extends": "../packages/twenty-server/tsconfig.json",
+  "compilerOptions": { "noEmit": true, "incremental": false },
+  "include": [
+    "../packages/twenty-server/src/engine/core-modules/auth/erp/erp-crm-access.types.ts",
+    "../packages/twenty-server/src/engine/core-modules/auth/erp/erp-crm-access.client.ts",
+    "../packages/twenty-server/src/engine/core-modules/auth/erp/erp-crm-config.ts",
+    "../packages/twenty-server/src/engine/core-modules/auth/erp/erp-crm-proof.ts",
+    "../packages/twenty-server/src/engine/core-modules/auth/erp/erp-crm-operation-policy.ts",
+    "../packages/twenty-server/src/engine/core-modules/auth/erp/erp-crm-request-context.ts"
+  ]
+}

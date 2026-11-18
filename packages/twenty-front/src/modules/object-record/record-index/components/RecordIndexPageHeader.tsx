@@ -1,3 +1,4 @@
+import { NativeMarketingRecordActions } from '@/customer-marketing/components/NativeMarketingRecordActions';
 import { RecordIndexCommandMenu } from '@/command-menu-item/components/RecordIndexCommandMenu';
 import { contextStoreCurrentViewIdComponentState } from '@/context-store/states/contextStoreCurrentViewIdComponentState';
 import { contextStoreNumberOfSelectedRecordsComponentState } from '@/context-store/states/contextStoreNumberOfSelectedRecordsComponentState';
@@ -54,6 +55,11 @@ export const RecordIndexPageHeader = () => {
         actionButton={
           isDefined(contextStoreCurrentViewId) ? (
             <>
+              {contextStoreNumberOfSelectedRecords === 0 && (
+                <NativeMarketingRecordActions
+                  objectName={objectMetadataItem?.nameSingular ?? ''}
+                />
+              )}
               <RecordIndexCommandMenu />
               {!isLayoutCustomizationModeEnabled &&
                 workspaceSurface.type === 'main' && <SidePanelToggleButton />}

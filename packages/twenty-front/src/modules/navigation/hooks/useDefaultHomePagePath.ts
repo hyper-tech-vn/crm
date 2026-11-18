@@ -1,3 +1,6 @@
+import { nativeMarketingViewPath } from '@/customer-marketing/native-marketing-navigation';
+import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
+import { authProvidersState } from '@/client-config/states/authProvidersState';
 import { currentUserState } from '@/auth/states/currentUserState';
 import { metadataStoreState } from '@/metadata-store/states/metadataStoreState';
 import { metadataStoreStatusFamilySelector } from '@/metadata-store/states/metadataStoreStatusFamilySelector';
@@ -20,7 +23,9 @@ import { AppPath, SettingsPath } from 'twenty-shared/types';
 import { getAppPath, getSettingsPath, isDefined } from 'twenty-shared/utils';
 
 export const useDefaultHomePagePath = () => {
+  const currentWorkspace = useAtomStateValue(currentWorkspaceState);
   const currentUser = useAtomStateValue(currentUserState);
+  const isHypertech = useAtomStateValue(authProvidersState).clerk;
   const isMobile = useIsMobile();
   const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
   const metadataStore = useAtomFamilyStateValue(
@@ -98,6 +103,12 @@ export const useDefaultHomePagePath = () => {
       return AppPath.SignInUp;
     }
 
+    if (isHypertech) {
+      return isMobile
+        ? AppPath.Home
+        : nativeMarketingViewPath('customers', currentWorkspace?.id);
+    }
+
     if (isMobile) {
       return AppPath.Home;
     }
@@ -128,6 +139,8 @@ export const useDefaultHomePagePath = () => {
     );
   }, [
     currentUser,
+    isHypertech,
+    currentWorkspace?.id,
     isMobile,
     readableNonSystemObjectMetadataItems,
     areObjectMetadataItemsLoaded,

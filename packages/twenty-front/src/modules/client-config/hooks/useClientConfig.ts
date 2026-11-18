@@ -179,6 +179,7 @@ export const useClientConfig = (): UseClientConfigResult => {
         }));
         setAppVersion(clientConfig.appVersion);
         setAuthProviders({
+          clerk: clientConfig.isClerkAuthEnabled === true,
           google: clientConfig.authProviders.google,
           microsoft: clientConfig.authProviders.microsoft,
           password: clientConfig.authProviders.password,

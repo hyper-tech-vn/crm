@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { ErpCrmAuthorizationService } from '../../erp/erp-crm-authorization.service';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { msg } from '@lingui/core/macro';
@@ -37,6 +38,7 @@ import { WorkspaceMemberWorkspaceEntity } from 'src/modules/workspace-member/sta
 @Injectable()
 export class AccessTokenService {
   constructor(
+    private readonly erpCrm: ErpCrmAuthorizationService,
     private readonly jwtWrapperService: JwtWrapperService,
     private readonly jwtStrategy: JwtAuthStrategy,
     private readonly twentyConfigService: TwentyConfigService,
@@ -203,20 +205,41 @@ export class AccessTokenService {
         );
       }
 
-      return this.validateToken(token);
+      return this.authorizeErpRequest(request, await this.validateToken(token));
     }
 
     const sessionToken =
       this.userSessionCookieService.extractSessionTokenFromRequest(request);
 
     if (sessionToken) {
-      return this.validateSessionToken(sessionToken);
+      return this.authorizeErpRequest(
+        request,
+        await this.validateSessionToken(sessionToken),
+      );
     }
 
     throw new AuthException(
       'Missing authentication token',
       AuthExceptionCode.FORBIDDEN_EXCEPTION,
     );
+  }
+
+  private async authorizeErpRequest(
+    request: Request,
+    auth: RawAuthContext,
+  ): Promise<RawAuthContext> {
+    try {
+      await this.erpCrm.authorize(request, auth);
+      return auth;
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw new AuthException(
+          'Clerk sign-in must be renewed.',
+          AuthExceptionCode.UNAUTHENTICATED,
+        );
+      }
+      throw error;
+    }
   }
 
   private async validateSessionToken(

@@ -236,7 +236,9 @@ export const SidePanelCommandMenuItemDisplayPage = () => {
             {getSectionAppActions(section).map((item) => {
               const handleClick = () => {
                 item.onClick();
-                closeSidePanelMenu();
+                if (!('keepSidePanelOpen' in item) || !item.keepSidePanelOpen) {
+                  closeSidePanelMenu();
+                }
               };
 
               return (

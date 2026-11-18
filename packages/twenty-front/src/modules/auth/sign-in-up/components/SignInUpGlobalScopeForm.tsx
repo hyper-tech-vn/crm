@@ -1,3 +1,4 @@
+import { SignInUpWithClerk } from '@/auth/sign-in-up/components/internal/SignInUpWithClerk';
 import { availableWorkspacesState } from '@/auth/states/availableWorkspacesState';
 import { returnToPathState } from '@/auth/states/returnToPathState';
 import { useBuildWorkspaceUrl } from '@/domain-manager/hooks/useBuildWorkspaceUrl';
@@ -237,6 +238,7 @@ export const SignInUpGlobalScopeForm = () => {
       )}
       {signInUpStep !== SignInUpStep.WorkspaceSelection && (
         <StyledOnboardingContentContainer>
+          <SignInUpWithClerk />
           {authProviders.google && (
             <SignInUpWithGoogle
               action="list-available-workspaces"
@@ -252,10 +254,12 @@ export const SignInUpGlobalScopeForm = () => {
           {(authProviders.google || authProviders.microsoft) && (
             <Separator style={{ marginBlock: themeCssVariables.spacing[3] }} />
           )}
-          {/* oxlint-disable-next-line react/jsx-props-no-spreading */}
-          <FormProvider {...form}>
-            <SignInUpWithCredentials isGlobalScope />
-          </FormProvider>
+          {!authProviders.clerk && (
+            // oxlint-disable-next-line react/jsx-props-no-spreading
+            <FormProvider {...form}>
+              <SignInUpWithCredentials isGlobalScope />
+            </FormProvider>
+          )}
           {signInUpStep === SignInUpStep.Password && (
             <StyledForgotPasswordLinkContainer>
               <Button
