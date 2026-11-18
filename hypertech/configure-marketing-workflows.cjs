@@ -46,6 +46,9 @@ const { WorkflowCoreSyncService } = load(
 const { getWorkflowPrefillIds } = load(
   'engine/workspace-manager/standard-objects-prefill-data/utils/prefill-workflows.util',
 );
+const { WorkspaceManyOrAllFlatEntityMapsCacheService } = load(
+  'engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.service',
+);
 const { TRIGGER_STEP_ID } = localRequire('twenty-shared/workflow');
 const workspaceId = process.env.ERP_CRM_WORKSPACE_ID;
 async function main() {
@@ -96,6 +99,16 @@ async function main() {
         throw Error('Real synchronized customers are required');
       const context = buildWorkspaceAuthContextFromRequest(request);
       await app.get(WorkspaceOrmManager).executeInWorkspaceContext(async () => {
+        await app
+          .get(WorkspaceManyOrAllFlatEntityMapsCacheService)
+          .invalidateFlatEntityMaps({
+            workspaceId,
+            flatMapsKeys: [
+              'flatWorkflowMaps',
+              'flatWorkflowVersionMaps',
+              'flatNavigationMenuItemMaps',
+            ],
+          });
         if (process.env.REMOVE_VENDOR_WORKFLOWS === 'true') {
           const defaults = getWorkflowPrefillIds(workspaceId);
           const ids = [
