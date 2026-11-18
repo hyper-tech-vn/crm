@@ -140,3 +140,40 @@ Consent panel showed current UNKNOWN and disabled save without evidence. No real
 consent was edited. Native command menu order lookup stayed open in its routed
 panel and rendered the existing ERP order with its Vietnamese status. A fresh
 page load rendered the populated customer profile and protected source fields.
+
+Final deployed release: `566ab310ff1598b15973ec1c4ec962ef73575064`, image
+`hypertech-crm:erp-566ab310ff15`. The packaged server payload is byte-identical to
+the bootstrap-verified preceding image. Built frontend index SHA256
+`20c272c306d1c1c1160bad24756593a035b981150e47124f3f8ea44ca4da3326`
+matched the image before cutover. Both runtime revision labels match the published
+commit; server healthy, worker running, zero restarts. Existing PG volume retained.
+
+Final live acceptance passed:
+- Full native sync processed 1431 contacts, re-enabled its button and refreshed the
+  populated list with no alert/retry/filter error.
+- Native mobile Home links target native customer/campaign indexes. Legacy URLs
+  redirect; 390px and 320px native LIST retain record access and overflow chips.
+- Populated desktop native customer TABLE, saved-view picker, consent segments,
+  campaign TABLE and expanded filter menu verified at 1512×900.
+- Campaign audience link opens a native filtered list in the routed panel; the
+  JanyCreative consent-request draft matched 1046 eligible customers in both views.
+- Existing consent evidence form disabled save without evidence; no consent writes.
+  Native order command and campaign editor stayed in native routed side panels.
+- Escape closed the native filter menu; temporary viewport override reset. Live
+  campaign TABLE left open for review.
+
+Screenshots in ignored `output/crm-native-ui-20261118`:
+`native-campaigns-desktop.jpg`, `native-customers-desktop.jpg`,
+`native-customers-mobile-390.jpg`, `native-customers-mobile-320.jpg`,
+`native-saved-views-desktop.jpg`, `native-filter-menu-desktop.jpg`,
+`native-consent-panel-390.jpg`, `native-consent-empty-320.jpg`,
+`native-sync-success.jpg`. Customer screenshots are private evidence, not Git assets.
+
+No release blockers remain in the changed native navigation/action flows. Native
+320px rows expose extra fields via explicit overflow chips and record profiles;
+this is Twenty's own presentation. Light theme was not separately toggled in this
+production session; no new static palette was introduced. Real campaign drafts
+were inspected without fake saves; existing unit tests cover validation/conflicts.
+Shop CSV behavior remains covered by scoped API/CSV tests, without downloading
+customer data for this UI check. Email delivery, scheduling and consent replies
+remain outside this UI correction: no email was sent and consent event count is zero.
