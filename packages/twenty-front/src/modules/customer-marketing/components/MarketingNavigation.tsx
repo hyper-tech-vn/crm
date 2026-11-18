@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useLingui } from '@lingui/react/macro';
 import {
   IconUser,
+  IconBuildingSkyscraper,
   IconFilter,
   IconMail,
   IconSettings,
@@ -20,6 +21,15 @@ export const MarketingNavigation = () => {
     useMarketingResource<MarketingCapabilities>('/capabilities');
   return (
     <NavigationDrawerScrollableContent>
+      <NavigationDrawerItem
+        label={t`Công ty`}
+        Icon={IconBuildingSkyscraper}
+        to="/objects/companies"
+        active={
+          location.pathname === '/objects/companies' ||
+          location.pathname.startsWith('/object/company/')
+        }
+      />
       <NavigationDrawerItem
         label={t`Khách hàng`}
         Icon={IconUser}

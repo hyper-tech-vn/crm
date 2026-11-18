@@ -179,9 +179,10 @@ async function main() {
             },
             {
               key: 'customers',
-              label: 'Chăm sóc khách đã mua',
+              label: 'Chăm sóc khách mua lần đầu',
               kind: 'PROMOTION',
               minimum: 1,
+              maximum: 1,
               subject: `Thank you from ${shop.name}`,
               body: `Hello,\n\nThank you for choosing ${shop.name}. We appreciate your support. If you have questions about your purchase or would like help choosing your next item, simply reply to this email.\n\nThank you,\n${shop.name}`,
             },
@@ -246,7 +247,7 @@ async function main() {
                             subject: cohort.subject,
                             bodyText: cohort.body,
                             minOrders: cohort.minimum,
-                            maxOrders: null,
+                            maxOrders: cohort.maximum ?? null,
                           },
                         },
                         outputSchema: {},
@@ -291,7 +292,7 @@ async function main() {
               record?.shopId !== shop.id ||
               record?.kind !== cohort.kind ||
               record?.minOrders !== cohort.minimum ||
-              record?.maxOrders !== null ||
+              record?.maxOrders !== (cohort.maximum ?? null) ||
               record?.name !== name ||
               record?.subject !== cohort.subject ||
               record?.bodyText !== cohort.body ||
